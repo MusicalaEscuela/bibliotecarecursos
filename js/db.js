@@ -8,6 +8,7 @@ import {
   updateDoc,
   deleteDoc,
   writeBatch,
+  getDoc,
   query,
   orderBy,
   serverTimestamp,
@@ -16,6 +17,22 @@ import { app } from "./auth.js";
 
 export const db = getFirestore(app);
 const recursosCol = collection(db, "recursos");
+
+// Lista oficial de áreas en config/areas { lista: [...] }.
+const areasRef = () => doc(db, "config", "areas");
+
+export async function fetchAreas() {
+  const snap = await getDoc(areasRef());
+  return snap.exists() ? snap.data().lista || [] : null; // null = aún no existe
+}
+
+export async function saveAreas(lista, userEmail) {
+  await setDoc(areasRef(), {
+    lista: [...new Set(lista)].sort(),
+    actualizadoEn: serverTimestamp(),
+    actualizadoPor: userEmail,
+  });
+}
 
 export async function fetchRecursos() {
   const snap = await getDocs(query(recursosCol, orderBy("titulo")));

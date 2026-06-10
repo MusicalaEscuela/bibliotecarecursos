@@ -203,6 +203,29 @@ body {
 .check-label { flex-direction: row !important; align-items: center; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
 
+/* Gestor de áreas */
+.modal-hint { color: var(--muted); font-size: 13px; margin: 0; }
+.areas-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.areas-items li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.areas-items li:last-child { border-bottom: none; }
+.form-inline { display: flex; gap: 8px; }
+.form-inline input { flex: 1; }
+
 /* Toasts */
 #toast-host {
   position: fixed;

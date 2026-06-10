@@ -57,6 +57,7 @@
         </select>
         <span id="list-count" class="list-count"></span>
         <div class="toolbar-spacer"></div>
+        <button id="btn-areas" class="btn btn-ghost">Áreas</button>
         <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
         <button id="btn-new" class="btn btn-primary">+ Nuevo recurso</button>
       </section>
@@ -120,6 +121,24 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+  </div>
+
+  <!-- Modal de gestión de áreas -->
+  <div id="areas-backdrop" class="modal-backdrop">
+    <div class="modal">
+      <h2>Áreas oficiales</h2>
+      <p class="modal-hint">Esta lista vive en Firestore (<code>config/areas</code>) y es la que usan
+        el Manager y las demás apps de Musicala. Eliminar un área no toca los recursos.</p>
+      <ul id="areas-items" class="areas-items"></ul>
+      <div class="form-inline">
+        <input id="area-new" type="text" placeholder="Nueva área…">
+        <button id="area-add" class="btn btn-small">Agregar</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="areas-close" class="btn btn-ghost">Cerrar</button>
+        <button type="button" id="areas-save" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="js/app.js"></script>

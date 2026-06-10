@@ -5,6 +5,8 @@ import {
   createRecurso,
   updateRecurso,
   bulkUpdate,
+  fetchAreas,
+  saveAreas,
 } from "./db.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
@@ -22,9 +24,24 @@ const $ = (id) => document.getElementById(id);
 
 let currentUser = null;
 let recursos = [];
+let areasOficiales = [];
 
-const areas = () =>
+// Áreas oficiales (config/areas); si aún no existe el doc, se siembra
+// con las áreas presentes en los recursos.
+const areasDeRecursos = () =>
   [...new Set(recursos.map((r) => r.area).filter(Boolean))].sort();
+const areas = () => (areasOficiales.length ? areasOficiales : areasDeRecursos());
+
+async function loadAreas() {
+  const lista = await fetchAreas();
+  if (lista === null && recursos.length) {
+    areasOficiales = areasDeRecursos();
+    await saveAreas(areasOficiales, currentUser.email);
+    toast("Lista oficial de áreas creada en config/areas", "success");
+  } else {
+    areasOficiales = lista || [];
+  }
+}
 
 function refresh() {
   fillFilterOptions(recursos);
@@ -41,6 +58,7 @@ async function loadData() {
   $("loading").classList.remove("hidden");
   try {
     recursos = await fetchRecursos();
+    await loadAreas();
     $("import-panel").classList.toggle("hidden", recursos.length > 0);
     refresh();
   } catch (err) {
@@ -100,7 +118,12 @@ async function handleBulk(data) {
 function initBulkBar() {
   $("bulk-area-apply").addEventListener("click", () => {
     const area = $("bulk-area").value.trim().toLowerCase();
-    if (area) handleBulk({ area });
+    if (!area) return;
+    if (areasOficiales.length && !areasOficiales.includes(area)) {
+      toast(`"${area}" no está en la lista oficial. Agrégala primero en "Áreas".`, "error");
+      return;
+    }
+    handleBulk({ area });
   });
   $("bulk-archive").addEventListener("click", () => handleBulk({ estado: "archivado" }));
   $("bulk-publish").addEventListener("click", () => handleBulk({ estado: "publicado" }));
@@ -138,7 +161,66 @@ function initToolbar() {
   });
 }
 
+// --- Gestor de áreas oficiales ---
+let areasDraft = [];
+
+function renderAreasModal() {
+  $("areas-items").innerHTML = areasDraft
+    .map(
+      (a, i) => `<li>${a}
+        <button class="btn btn-small btn-ghost area-del" data-i="${i}">✕</button></li>`
+    )
+    .join("");
+  $("areas-items")
+    .querySelectorAll(".area-del")
+    .forEach((b) =>
+      b.addEventListener("click", () => {
+        areasDraft.splice(Number(b.dataset.i), 1);
+        renderAreasModal();
+      })
+    );
+}
+
+function initAreasModal() {
+  $("btn-areas").addEventListener("click", () => {
+    areasDraft = [...areas()];
+    renderAreasModal();
+    $("areas-backdrop").classList.add("open");
+  });
+  $("areas-close").addEventListener("click", () =>
+    $("areas-backdrop").classList.remove("open")
+  );
+  $("areas-backdrop").addEventListener("click", (e) => {
+    if (e.target === $("areas-backdrop")) $("areas-backdrop").classList.remove("open");
+  });
+  const addArea = () => {
+    const v = $("area-new").value.trim().toLowerCase();
+    if (v && !areasDraft.includes(v)) {
+      areasDraft.push(v);
+      areasDraft.sort();
+      renderAreasModal();
+    }
+    $("area-new").value = "";
+  };
+  $("area-add").addEventListener("click", addArea);
+  $("area-new").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); addArea(); }
+  });
+  $("areas-save").addEventListener("click", async () => {
+    try {
+      await saveAreas(areasDraft, currentUser.email);
+      areasOficiales = [...areasDraft].sort();
+      toast("Áreas guardadas en config/areas", "success");
+      $("areas-backdrop").classList.remove("open");
+      refresh();
+    } catch (err) {
+      toast("Error guardando áreas: " + err.message, "error");
+    }
+  });
+}
+
 // --- Arranque ---
+initAreasModal();
 initEditor();
 initToolbar();
 initBulkBar();
