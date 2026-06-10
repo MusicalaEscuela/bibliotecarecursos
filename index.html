@@ -69,6 +69,7 @@
         <button id="bulk-area-apply" class="btn btn-small">Aplicar área</button>
         <button id="bulk-publish" class="btn btn-small">Publicar</button>
         <button id="bulk-archive" class="btn btn-small">Archivar</button>
+        <button id="bulk-delete" class="btn btn-small btn-danger">Eliminar archivados</button>
         <button id="bulk-clear" class="btn btn-small btn-ghost">Deseleccionar</button>
         <datalist id="areas-list"></datalist>
       </section>
@@ -80,7 +81,7 @@
         <table class="table">
           <thead>
             <tr>
-              <th></th><th>Título</th><th>Área</th><th>Tipo</th><th>Estado</th><th>Adjuntos</th><th></th>
+              <th><input type="checkbox" id="check-all" title="Seleccionar todos los filtrados"></th><th>Título</th><th>Área</th><th>Tipo</th><th>Estado</th><th>Adjuntos</th><th></th>
             </tr>
           </thead>
           <tbody id="list-body"></tbody>

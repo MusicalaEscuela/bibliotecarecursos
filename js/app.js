@@ -5,6 +5,7 @@ import {
   createRecurso,
   updateRecurso,
   bulkUpdate,
+  bulkDelete,
   deleteRecursoForever,
   fetchAreas,
   saveAreas,
@@ -143,6 +144,32 @@ function initBulkBar() {
     handleBulk({ area });
   });
   $("bulk-archive").addEventListener("click", () => handleBulk({ estado: "archivado" }));
+  $("bulk-delete").addEventListener("click", async () => {
+    // Solo elimina los seleccionados que ya están archivados (doble paso de seguridad).
+    const archivados = [...selection].filter(
+      (id) => recursos.find((r) => r.id === id)?.estado === "archivado"
+    );
+    const omitidos = selection.size - archivados.length;
+    if (!archivados.length) {
+      toast("Ninguno de los seleccionados está archivado. Archívalos primero.", "error");
+      return;
+    }
+    if (!confirm(
+      `¿Eliminar definitivamente ${archivados.length} recursos archivados?` +
+      (omitidos ? `\n(${omitidos} seleccionados no están archivados y se omitirán.)` : "") +
+      `\n\nEsta acción no se puede deshacer.`
+    )) return;
+    try {
+      await bulkDelete(archivados);
+      const borrados = new Set(archivados);
+      recursos = recursos.filter((r) => !borrados.has(r.id));
+      toast(`${archivados.length} recursos eliminados definitivamente`, "success");
+      clearSelection();
+      refresh();
+    } catch (err) {
+      toast("Error en eliminación masiva: " + err.message, "error");
+    }
+  });
   $("bulk-publish").addEventListener("click", () => handleBulk({ estado: "publicado" }));
   $("bulk-clear").addEventListener("click", clearSelection);
 }

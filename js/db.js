@@ -81,6 +81,17 @@ export async function bulkUpdate(ids, data, userEmail) {
   }
 }
 
+// Eliminación masiva definitiva.
+export async function bulkDelete(ids) {
+  for (let i = 0; i < ids.length; i += 450) {
+    const batch = writeBatch(db);
+    for (const id of ids.slice(i, i + 450)) {
+      batch.delete(doc(recursosCol, id));
+    }
+    await batch.commit();
+  }
+}
+
 // Escritura masiva con ids fijos (para la importación, idempotente).
 export async function bulkSet(items, userEmail) {
   for (let i = 0; i < items.length; i += 450) {

@@ -69,6 +69,17 @@ export function renderList(recursos, { onEdit, onArchive, onDelete }) {
     )
     .join("");
 
+  // Seleccionar/deseleccionar todos los recursos filtrados actualmente visibles.
+  const checkAll = document.getElementById("check-all");
+  const visibleIds = recursos.map((r) => r.id);
+  checkAll.checked = visibleIds.length > 0 && visibleIds.every((id) => selection.has(id));
+  checkAll.onchange = () => {
+    if (checkAll.checked) visibleIds.forEach((id) => selection.add(id));
+    else visibleIds.forEach((id) => selection.delete(id));
+    tbody.querySelectorAll(".row-check").forEach((c) => (c.checked = checkAll.checked));
+    updateBulkBar();
+  };
+
   tbody.querySelectorAll("tr").forEach((tr) => {
     const id = tr.dataset.id;
     tr.querySelector(".act-edit").addEventListener("click", () => onEdit(id));
