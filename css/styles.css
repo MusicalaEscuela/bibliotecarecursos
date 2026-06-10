@@ -40,6 +40,8 @@ body {
 }
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-ghost { background: transparent; }
+.btn-danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn-danger:hover { background: var(--danger); color: #fff; }
 .btn-small { padding: 4px 10px; font-size: 13px; }
 
 /* Login */

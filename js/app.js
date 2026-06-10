@@ -5,6 +5,7 @@ import {
   createRecurso,
   updateRecurso,
   bulkUpdate,
+  deleteRecursoForever,
   fetchAreas,
   saveAreas,
 } from "./db.js";
@@ -51,6 +52,7 @@ function refresh() {
   renderList(applyFilters(recursos, getFilters()), {
     onEdit: handleEdit,
     onArchive: handleArchive,
+    onDelete: handleDelete,
   });
 }
 
@@ -99,6 +101,21 @@ async function handleArchive(id) {
     refresh();
   } catch (err) {
     toast("Error: " + err.message, "error");
+  }
+}
+
+async function handleDelete(id) {
+  const recurso = recursos.find((r) => r.id === id);
+  if (!confirm(`¿Eliminar definitivamente "${recurso.titulo}"?\n\nEsta acción no se puede deshacer.`))
+    return;
+  try {
+    await deleteRecursoForever(id);
+    recursos = recursos.filter((r) => r.id !== id);
+    selection.delete(id);
+    toast("Recurso eliminado definitivamente", "success");
+    refresh();
+  } catch (err) {
+    toast("Error al eliminar: " + err.message, "error");
   }
 }
 

@@ -44,7 +44,7 @@ export function fillFilterOptions(recursos) {
   fill("filter-tipo", new Set(recursos.map((r) => r.tipo).filter(Boolean)), "Todos los tipos");
 }
 
-export function renderList(recursos, { onEdit, onArchive }) {
+export function renderList(recursos, { onEdit, onArchive, onDelete }) {
   const tbody = $("list-body");
   $("list-count").textContent = `${recursos.length} recurso${recursos.length === 1 ? "" : "s"}`;
   tbody.innerHTML = recursos
@@ -63,6 +63,7 @@ export function renderList(recursos, { onEdit, onArchive }) {
       <td class="cell-actions">
         <button class="btn btn-small act-edit">Editar</button>
         <button class="btn btn-small btn-ghost act-archive">${r.estado === "archivado" ? "Restaurar" : "Archivar"}</button>
+        ${r.estado === "archivado" ? `<button class="btn btn-small btn-danger act-delete">Eliminar</button>` : ""}
       </td>
     </tr>`
     )
@@ -72,6 +73,7 @@ export function renderList(recursos, { onEdit, onArchive }) {
     const id = tr.dataset.id;
     tr.querySelector(".act-edit").addEventListener("click", () => onEdit(id));
     tr.querySelector(".act-archive").addEventListener("click", () => onArchive(id));
+    tr.querySelector(".act-delete")?.addEventListener("click", () => onDelete(id));
     tr.querySelector(".row-check").addEventListener("change", (e) => {
       e.target.checked ? selection.add(id) : selection.delete(id);
       updateBulkBar();
