@@ -28,6 +28,9 @@ const areas = () =>
 
 function refresh() {
   fillFilterOptions(recursos);
+  $("areas-list").innerHTML = areas()
+    .map((a) => `<option value="${a}"></option>`)
+    .join("");
   renderList(applyFilters(recursos, getFilters()), {
     onEdit: handleEdit,
     onArchive: handleArchive,
