@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'alekcaballeromusic@gmail.com',
+          'catalina.medina.leal@gmail.com',
+          'imusicaladocente@gmail.com',
+          'musicalaasesor@gmail.com',
+          'imusicala@gmail.com'
+        ];
+    }
+
+    // Recursos de la biblioteca: lectura abierta (las otras apps leen de aquí),
+    // escritura solo para admins de Musicala.
+    match /recursos/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Configuración (áreas, etc.)
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Todo lo demás, bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

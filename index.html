@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager · Biblioteca de Recursos Musicala</title>
+  <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Vista de login -->
+  <div id="view-login" class="login-screen">
+    <div class="login-card">
+      <img src="logo.png" alt="Musicala" class="login-logo">
+      <h1>Biblioteca de Recursos</h1>
+      <p>Manager de administración. Solo para el equipo de Musicala.</p>
+      <button id="btn-login" class="btn btn-primary">Entrar con Google</button>
+      <p id="login-denied" class="login-denied hidden">
+        Ese correo no tiene permisos de administración.
+      </p>
+    </div>
+  </div>
+
+  <!-- Vista principal -->
+  <div id="view-app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img src="logo.png" alt="" class="topbar-logo">
+        <strong>Biblioteca Musicala</strong>
+        <span class="topbar-tag">Manager</span>
+      </div>
+      <div class="topbar-user">
+        <span id="user-email"></span>
+        <button id="btn-logout" class="btn btn-ghost btn-small">Salir</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Panel de importación (visible solo si Firestore está vacío) -->
+      <section id="import-panel" class="panel hidden">
+        <h2>Migración inicial</h2>
+        <p>Firestore está vacío. Importa los <strong>1.566 recursos</strong> del export de Classroom.</p>
+        <button id="btn-import" class="btn btn-primary">Importar export de Classroom</button>
+        <span id="import-progress"></span>
+      </section>
+
+      <!-- Barra de herramientas -->
+      <section class="toolbar">
+        <input id="filter-search" type="search" placeholder="Buscar por título, tema o etiqueta…">
+        <select id="filter-area"><option value="">Todas las áreas</option></select>
+        <select id="filter-tipo"><option value="">Todos los tipos</option></select>
+        <select id="filter-estado">
+          <option value="">Todos los estados</option>
+          <option value="publicado">Publicado</option>
+          <option value="borrador">Borrador</option>
+          <option value="archivado">Archivado</option>
+        </select>
+        <span id="list-count" class="list-count"></span>
+        <div class="toolbar-spacer"></div>
+        <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
+        <button id="btn-new" class="btn btn-primary">+ Nuevo recurso</button>
+      </section>
+
+      <!-- Barra de acciones masivas -->
+      <section id="bulk-bar" class="bulk-bar hidden">
+        <span id="bulk-count"></span>
+        <input id="bulk-area" type="text" placeholder="Asignar área…" list="areas-list">
+        <button id="bulk-area-apply" class="btn btn-small">Aplicar área</button>
+        <button id="bulk-publish" class="btn btn-small">Publicar</button>
+        <button id="bulk-archive" class="btn btn-small">Archivar</button>
+        <button id="bulk-clear" class="btn btn-small btn-ghost">Deseleccionar</button>
+      </section>
+
+      <div id="loading" class="loading hidden">Cargando recursos…</div>
+
+      <!-- Tabla -->
+      <section class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th><th>Título</th><th>Área</th><th>Tipo</th><th>Estado</th><th>Adjuntos</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="list-body"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal de edición -->
+  <div id="editor-backdrop" class="modal-backdrop">
+    <form id="editor-form" class="modal">
+      <h2 id="editor-title">Editar recurso</h2>
+      <label>Título <input id="f-titulo" required></label>
+      <label>Descripción <textarea id="f-descripcion" rows="3"></textarea></label>
+      <div class="form-row">
+        <label>Área <select id="f-area"></select></label>
+        <label>Tipo <input id="f-tipo" placeholder="Tarea / ejercicio, guía…"></label>
+      </div>
+      <div class="form-row">
+        <label>Tema <input id="f-tema"></label>
+        <label>Estado
+          <select id="f-estado">
+            <option value="publicado">Publicado</option>
+            <option value="borrador">Borrador</option>
+            <option value="archivado">Archivado</option>
+          </select>
+        </label>
+      </div>
+      <label>Etiquetas (separadas por coma) <input id="f-etiquetas"></label>
+      <label>Enlaces (uno por línea: <code>nombre | url</code>)
+        <textarea id="f-enlaces" rows="4"></textarea>
+      </label>
+      <label class="check-label">
+        <input id="f-musicala" type="checkbox" checked> Es material de Musicala
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="editor-cancel" class="btn btn-ghost">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
