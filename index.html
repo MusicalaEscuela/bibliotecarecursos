@@ -36,11 +36,11 @@
     </header>
 
     <main class="main">
-      <!-- Panel de importación (visible solo si Firestore está vacío) -->
+      <!-- Panel de importación -->
       <section id="import-panel" class="panel hidden">
-        <h2>Migración inicial</h2>
-        <p>Firestore está vacío. Importa los <strong>1.566 recursos</strong> del export de Classroom.</p>
-        <button id="btn-import" class="btn btn-primary">Importar export de Classroom</button>
+        <h2>Migración de Classroom</h2>
+        <p>Importa recursos del export de Classroom. Si ya existen, se omiten para no duplicar ni pisar ediciones manuales.</p>
+        <button id="btn-import" class="btn btn-primary">Importar faltantes de Classroom</button>
         <span id="import-progress"></span>
       </section>
 
@@ -58,6 +58,7 @@
         <span id="list-count" class="list-count"></span>
         <div class="toolbar-spacer"></div>
         <button id="btn-areas" class="btn btn-ghost">Áreas</button>
+        <button id="btn-import-toolbar" class="btn btn-ghost">Importar faltantes</button>
         <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
         <button id="btn-new" class="btn btn-primary">+ Nuevo recurso</button>
       </section>

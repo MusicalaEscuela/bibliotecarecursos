@@ -62,7 +62,7 @@ async function loadData() {
   try {
     recursos = await fetchRecursos();
     await loadAreas();
-    $("import-panel").classList.toggle("hidden", recursos.length > 0);
+    $("import-panel").classList.add("hidden");
     refresh();
   } catch (err) {
     console.error(err);
@@ -186,15 +186,25 @@ function initToolbar() {
     a.download = `biblioteca-musicala-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
   });
+  $("btn-import-toolbar").addEventListener("click", () => {
+    $("import-panel").classList.toggle("hidden");
+  });
   $("btn-import").addEventListener("click", async () => {
-    if (!confirm("¿Importar el export de Classroom a Firestore? Es seguro re-ejecutarlo (no duplica)."))
+    if (!confirm("Importar los recursos faltantes de Classroom a Firestore? Los recursos que ya existen se omiten."))
       return;
     $("btn-import").disabled = true;
     try {
-      const total = await importClassroomExport(currentUser.email, (done, all) => {
-        $("import-progress").textContent = `Importando… ${done}/${all}`;
-      });
-      toast(`Importación completa: ${total} recursos`, "success");
+      const existingIds = recursos.map((r) => r.id);
+      const result = await importClassroomExport(currentUser.email, (done, all, skipped) => {
+        $("import-progress").textContent =
+          all > 0
+            ? `Importando... ${done}/${all} (${skipped} ya existian)`
+            : `${skipped} recursos ya existian. No hay faltantes.`;
+      }, existingIds);
+      toast(
+        `Importacion completa: ${result.imported} nuevos, ${result.skipped} omitidos`,
+        "success"
+      );
       await loadData();
     } catch (err) {
       toast("Error importando: " + err.message, "error");

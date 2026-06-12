@@ -28,20 +28,26 @@ function mapResource(r) {
   };
 }
 
-export async function importClassroomExport(userEmail, onProgress) {
+export async function importClassroomExport(userEmail, onProgress, existingIds = []) {
   const res = await fetch("./data/classroom-export.json");
   if (!res.ok) throw new Error("No se pudo leer data/classroom-export.json");
   const json = await res.json();
-  const items = (json.resources || []).map((r) => ({
+  const existing = new Set(existingIds);
+  const allItems = (json.resources || []).map((r) => ({
     id: `cr-${r.id}`,
     data: mapResource(r),
   }));
+  const items = allItems.filter((item) => !existing.has(item.id));
   let done = 0;
   for (let i = 0; i < items.length; i += 450) {
     const chunk = items.slice(i, i + 450);
     await bulkSet(chunk, userEmail);
     done += chunk.length;
-    onProgress?.(done, items.length);
+    onProgress?.(done, items.length, allItems.length - items.length);
   }
-  return items.length;
+  return {
+    total: allItems.length,
+    imported: items.length,
+    skipped: allItems.length - items.length,
+  };
 }
