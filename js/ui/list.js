@@ -7,9 +7,32 @@ const esc = (s) =>
 
 export const selection = new Set();
 
+const normalizeSearchText = (value) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const searchTokens = (value) =>
+  normalizeSearchText(value)
+    .split(/[^a-z0-9ñ]+/i)
+    .filter(Boolean);
+
+const searchableText = (r) =>
+  normalizeSearchText([
+    r.titulo,
+    r.descripcion,
+    r.tema,
+    r.area,
+    r.tipo,
+    r.estado,
+    ...(r.etiquetas || []),
+    ...(r.enlaces || []).flatMap((e) => [e.nombre, e.url]),
+  ].join(" "));
+
 export function getFilters() {
   return {
-    search: $("filter-search").value.trim().toLowerCase(),
+    search: searchTokens($("filter-search").value),
     area: $("filter-area").value,
     tipo: $("filter-tipo").value,
     estado: $("filter-estado").value,
@@ -21,11 +44,9 @@ export function applyFilters(recursos, f) {
     if (f.area && r.area !== f.area) return false;
     if (f.tipo && r.tipo !== f.tipo) return false;
     if (f.estado && r.estado !== f.estado) return false;
-    if (f.search) {
-      const haystack = [r.titulo, r.descripcion, r.tema, ...(r.etiquetas || [])]
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(f.search)) return false;
+    if (f.search.length) {
+      const haystack = searchableText(r);
+      if (!f.search.every((token) => haystack.includes(token))) return false;
     }
     return true;
   });
