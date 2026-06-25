@@ -23,26 +23,36 @@ const searchableText = (r) =>
     r.titulo,
     r.descripcion,
     r.tema,
+    r.disciplina,
+    r.especialidad,
+    r.categoria,
+    r.nivel,
     r.area,
     r.tipo,
     r.estado,
     ...(r.etiquetas || []),
-    ...(r.enlaces || []).flatMap((e) => [e.nombre, e.url]),
+    ...(r.enlaces || []).flatMap((e) => [e.nombre, e.titulo, e.url]),
   ].join(" "));
+
+// Compat: lee el campo nuevo y, si falta, cae al viejo `area`/`tipo`.
+const especialidadDe = (r) => r.especialidad || r.area || "";
+const categoriaDe = (r) => r.categoria || r.tipo || "";
 
 export function getFilters() {
   return {
     search: searchTokens($("filter-search").value),
-    area: $("filter-area").value,
-    tipo: $("filter-tipo").value,
+    disciplina: $("filter-disciplina").value,
+    especialidad: $("filter-especialidad").value,
+    categoria: $("filter-categoria").value,
     estado: $("filter-estado").value,
   };
 }
 
 export function applyFilters(recursos, f) {
   return recursos.filter((r) => {
-    if (f.area && r.area !== f.area) return false;
-    if (f.tipo && r.tipo !== f.tipo) return false;
+    if (f.disciplina && (r.disciplina || "") !== f.disciplina) return false;
+    if (f.especialidad && especialidadDe(r) !== f.especialidad) return false;
+    if (f.categoria && categoriaDe(r) !== f.categoria) return false;
     if (f.estado && r.estado !== f.estado) return false;
     if (f.search.length) {
       const haystack = searchableText(r);
@@ -61,8 +71,9 @@ export function fillFilterOptions(recursos) {
       [...values].sort().map((v) => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
     sel.value = current;
   };
-  fill("filter-area", new Set(recursos.map((r) => r.area).filter(Boolean)), "Todas las áreas");
-  fill("filter-tipo", new Set(recursos.map((r) => r.tipo).filter(Boolean)), "Todos los tipos");
+  fill("filter-disciplina", new Set(recursos.map((r) => r.disciplina).filter(Boolean)), "Todas las disciplinas");
+  fill("filter-especialidad", new Set(recursos.map(especialidadDe).filter(Boolean)), "Todas las especialidades");
+  fill("filter-categoria", new Set(recursos.map(categoriaDe).filter(Boolean)), "Todas las categorías");
 }
 
 export function renderList(recursos, { onEdit, onArchive, onDelete }) {
@@ -77,8 +88,9 @@ export function renderList(recursos, { onEdit, onArchive, onDelete }) {
         <div class="cell-title">${esc(r.titulo)}</div>
         ${r.tema ? `<div class="cell-sub">${esc(r.tema)}</div>` : ""}
       </td>
-      <td><span class="badge badge-area">${esc(r.area)}</span></td>
-      <td>${esc(r.tipo)}</td>
+      <td>${r.disciplina ? `<span class="badge badge-area">${esc(r.disciplina)}</span>` : ""}</td>
+      <td>${esc(especialidadDe(r))}</td>
+      <td>${esc(categoriaDe(r))}</td>
       <td><span class="badge badge-${esc(r.estado)}">${esc(r.estado)}</span></td>
       <td>${(r.enlaces || []).length ? `🔗 ${(r.enlaces || []).length}` : ""}</td>
       <td class="cell-actions">

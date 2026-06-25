@@ -7,12 +7,18 @@ import {
   bulkUpdate,
   bulkDelete,
   deleteRecursoForever,
-  fetchAreas,
-  saveAreas,
+  fetchTaxonomia,
+  saveTaxonomia,
 } from "./db.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
 import { openEditor, initEditor } from "./ui/editor.js";
+import {
+  DEFAULT_TAXONOMIA,
+  withDefaults,
+  especialidadesDe,
+  derivarCampos,
+} from "./taxonomia.js";
 import {
   renderList,
   applyFilters,
@@ -26,30 +32,23 @@ const $ = (id) => document.getElementById(id);
 
 let currentUser = null;
 let recursos = [];
-let areasOficiales = [];
+let taxonomia = withDefaults(null);
 
-// Áreas oficiales (config/areas); si aún no existe el doc, se siembra
-// con las áreas presentes en los recursos.
-const areasDeRecursos = () =>
-  [...new Set(recursos.map((r) => r.area).filter(Boolean))].sort();
-const areas = () => (areasOficiales.length ? areasOficiales : areasDeRecursos());
-
-async function loadAreas() {
-  const lista = await fetchAreas();
-  if (lista === null && recursos.length) {
-    areasOficiales = areasDeRecursos();
-    await saveAreas(areasOficiales, currentUser.email);
-    toast("Lista oficial de áreas creada en config/areas", "success");
+// Taxonomía oficial (config/taxonomia); si aún no existe el doc, se siembra con
+// la taxonomía por defecto.
+async function loadTaxonomia() {
+  const tax = await fetchTaxonomia();
+  if (tax === null) {
+    taxonomia = withDefaults(DEFAULT_TAXONOMIA);
+    await saveTaxonomia(taxonomia, currentUser.email);
+    toast("Taxonomía oficial creada en config/taxonomia", "success");
   } else {
-    areasOficiales = lista || [];
+    taxonomia = withDefaults(tax);
   }
 }
 
 function refresh() {
   fillFilterOptions(recursos);
-  $("areas-list").innerHTML = areas()
-    .map((a) => `<option value="${a}"></option>`)
-    .join("");
   renderList(applyFilters(recursos, getFilters()), {
     onEdit: handleEdit,
     onArchive: handleArchive,
@@ -61,7 +60,9 @@ async function loadData() {
   $("loading").classList.remove("hidden");
   try {
     recursos = await fetchRecursos();
-    await loadAreas();
+    await loadTaxonomia();
+    fillSelectOptions("bulk-disciplina", "Disciplina…", taxonomia.disciplinas);
+    fillSelectOptions("bulk-categoria", "Categoría…", taxonomia.categorias);
     $("import-panel").classList.add("hidden");
     refresh();
   } catch (err) {
@@ -74,7 +75,7 @@ async function loadData() {
 
 function handleEdit(id) {
   const recurso = recursos.find((r) => r.id === id);
-  openEditor(recurso, areas(), async (editId, data) => {
+  openEditor(recurso, taxonomia, async (editId, data) => {
     try {
       if (editId) {
         await updateRecurso(editId, data, currentUser.email);
@@ -133,16 +134,45 @@ async function handleBulk(data) {
   }
 }
 
+// Rellena un <select> con opciones, conservando un placeholder inicial.
+function fillSelectOptions(id, placeholder, values) {
+  const sel = $(id);
+  const current = sel.value;
+  sel.innerHTML =
+    `<option value="">${placeholder}</option>` +
+    values.map((v) => `<option value="${v}">${v}</option>`).join("");
+  sel.value = current;
+}
+
 function initBulkBar() {
-  $("bulk-area-apply").addEventListener("click", () => {
-    const area = $("bulk-area").value.trim().toLowerCase();
-    if (!area) return;
-    if (areasOficiales.length && !areasOficiales.includes(area)) {
-      toast(`"${area}" no está en la lista oficial. Agrégala primero en "Áreas".`, "error");
+  // La especialidad disponible depende de la disciplina elegida en la barra.
+  $("bulk-disciplina").addEventListener("change", () => {
+    const disc = $("bulk-disciplina").value;
+    fillSelectOptions(
+      "bulk-especialidad",
+      "Especialidad…",
+      disc ? especialidadesDe(taxonomia, disc) : []
+    );
+  });
+
+  $("bulk-apply").addEventListener("click", () => {
+    const data = {};
+    const disc = $("bulk-disciplina").value;
+    const esp = $("bulk-especialidad").value;
+    const cat = $("bulk-categoria").value;
+    if (disc) data.disciplina = disc;
+    if (esp) {
+      data.especialidad = esp;
+      data.area = esp; // compat
+    }
+    if (cat) data.categoria = cat;
+    if (!Object.keys(data).length) {
+      toast("Elige al menos disciplina, especialidad o categoría.", "error");
       return;
     }
-    handleBulk({ area });
+    handleBulk(data);
   });
+
   $("bulk-archive").addEventListener("click", () => handleBulk({ estado: "archivado" }));
   $("bulk-delete").addEventListener("click", async () => {
     // Solo elimina los seleccionados que ya están archivados (doble paso de seguridad).
@@ -175,8 +205,8 @@ function initBulkBar() {
 }
 
 function initToolbar() {
-  ["filter-search", "filter-area", "filter-tipo", "filter-estado"].forEach((id) =>
-    $(id).addEventListener("input", refresh)
+  ["filter-search", "filter-disciplina", "filter-especialidad", "filter-categoria", "filter-estado"].forEach(
+    (id) => $(id).addEventListener("input", refresh)
   );
   $("btn-new").addEventListener("click", () => handleEdit(null));
   $("btn-export").addEventListener("click", () => {
@@ -200,7 +230,7 @@ function initToolbar() {
           all > 0
             ? `Importando... ${done}/${all} (${skipped} ya existian)`
             : `${skipped} recursos ya existian. No hay faltantes.`;
-      }, existingIds);
+      }, existingIds, taxonomia);
       toast(
         `Importacion completa: ${result.imported} nuevos, ${result.skipped} omitidos`,
         "success"
@@ -215,66 +245,154 @@ function initToolbar() {
   });
 }
 
-// --- Gestor de áreas oficiales ---
-let areasDraft = [];
+// --- Gestor de la taxonomía oficial ---
+let taxDraft = null;
+let taxDiscSel = "musica"; // disciplina cuyas especialidades se editan
 
-function renderAreasModal() {
-  $("areas-items").innerHTML = areasDraft
+function renderTaxList(ulId, items, onDelete) {
+  const ul = $(ulId);
+  ul.innerHTML = items
     .map(
-      (a, i) => `<li>${a}
-        <button class="btn btn-small btn-ghost area-del" data-i="${i}">✕</button></li>`
+      (v, i) => `<li>${v}
+        <button class="btn btn-small btn-ghost tax-del" data-i="${i}">✕</button></li>`
     )
     .join("");
-  $("areas-items")
-    .querySelectorAll(".area-del")
-    .forEach((b) =>
-      b.addEventListener("click", () => {
-        areasDraft.splice(Number(b.dataset.i), 1);
-        renderAreasModal();
-      })
-    );
+  ul.querySelectorAll(".tax-del").forEach((b) =>
+    b.addEventListener("click", () => {
+      onDelete(Number(b.dataset.i));
+    })
+  );
 }
 
-function initAreasModal() {
-  $("btn-areas").addEventListener("click", () => {
-    areasDraft = [...areas()];
-    renderAreasModal();
-    $("areas-backdrop").classList.add("open");
+function renderTaxModal() {
+  // Selector de disciplina para la columna de especialidades.
+  $("tax-disc-sel").innerHTML = taxDraft.disciplinas
+    .map((d) => `<option value="${d}">${d}</option>`)
+    .join("");
+  if (!taxDraft.disciplinas.includes(taxDiscSel)) taxDiscSel = taxDraft.disciplinas[0];
+  $("tax-disc-sel").value = taxDiscSel;
+
+  renderTaxList("tax-disciplinas", taxDraft.disciplinas, (i) => {
+    const removed = taxDraft.disciplinas[i];
+    taxDraft.disciplinas.splice(i, 1);
+    delete taxDraft.especialidades[removed];
+    renderTaxModal();
   });
-  $("areas-close").addEventListener("click", () =>
-    $("areas-backdrop").classList.remove("open")
-  );
-  $("areas-backdrop").addEventListener("click", (e) => {
-    if (e.target === $("areas-backdrop")) $("areas-backdrop").classList.remove("open");
+
+  const esp = taxDraft.especialidades[taxDiscSel] || ["general"];
+  renderTaxList("tax-especialidades", esp, (i) => {
+    esp.splice(i, 1);
+    taxDraft.especialidades[taxDiscSel] = esp;
+    renderTaxModal();
   });
-  const addArea = () => {
-    const v = $("area-new").value.trim().toLowerCase();
-    if (v && !areasDraft.includes(v)) {
-      areasDraft.push(v);
-      areasDraft.sort();
-      renderAreasModal();
+
+  renderTaxList("tax-categorias", taxDraft.categorias, (i) => {
+    taxDraft.categorias.splice(i, 1);
+    renderTaxModal();
+  });
+  renderTaxList("tax-niveles", taxDraft.niveles, (i) => {
+    taxDraft.niveles.splice(i, 1);
+    renderTaxModal();
+  });
+}
+
+const limpiar = (s) =>
+  s.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/\s+/g, "-");
+
+function initTaxModal() {
+  $("btn-taxonomia").addEventListener("click", () => {
+    // Copia profunda del estado actual para editar sin tocar el vivo.
+    taxDraft = JSON.parse(JSON.stringify(taxonomia));
+    renderTaxModal();
+    $("tax-backdrop").classList.add("open");
+  });
+  $("tax-close").addEventListener("click", () => $("tax-backdrop").classList.remove("open"));
+  $("tax-backdrop").addEventListener("click", (e) => {
+    if (e.target === $("tax-backdrop")) $("tax-backdrop").classList.remove("open");
+  });
+  $("tax-disc-sel").addEventListener("change", (e) => {
+    taxDiscSel = e.target.value;
+    renderTaxModal();
+  });
+
+  const addTo = (inputId, getArr) => {
+    const v = limpiar($(inputId).value);
+    if (v && !getArr().includes(v)) {
+      getArr().push(v);
+      getArr().sort();
+      renderTaxModal();
     }
-    $("area-new").value = "";
+    $(inputId).value = "";
   };
-  $("area-add").addEventListener("click", addArea);
-  $("area-new").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); addArea(); }
+  $("tax-disciplina-add").addEventListener("click", () => {
+    const v = limpiar($("tax-disciplina-new").value);
+    if (v && !taxDraft.disciplinas.includes(v)) {
+      taxDraft.disciplinas.push(v);
+      taxDraft.disciplinas.sort();
+      if (!taxDraft.especialidades[v]) taxDraft.especialidades[v] = ["general"];
+      renderTaxModal();
+    }
+    $("tax-disciplina-new").value = "";
   });
-  $("areas-save").addEventListener("click", async () => {
+  $("tax-especialidad-add").addEventListener("click", () =>
+    addTo("tax-especialidad-new", () => (taxDraft.especialidades[taxDiscSel] ||= ["general"]))
+  );
+  $("tax-categoria-add").addEventListener("click", () =>
+    addTo("tax-categoria-new", () => taxDraft.categorias)
+  );
+  $("tax-nivel-add").addEventListener("click", () =>
+    addTo("tax-nivel-new", () => taxDraft.niveles)
+  );
+
+  $("tax-save").addEventListener("click", async () => {
     try {
-      await saveAreas(areasDraft, currentUser.email);
-      areasOficiales = [...areasDraft].sort();
-      toast("Áreas guardadas en config/areas", "success");
-      $("areas-backdrop").classList.remove("open");
+      await saveTaxonomia(taxDraft, currentUser.email);
+      taxonomia = withDefaults(taxDraft);
+      toast("Taxonomía guardada en config/taxonomia", "success");
+      $("tax-backdrop").classList.remove("open");
       refresh();
     } catch (err) {
-      toast("Error guardando áreas: " + err.message, "error");
+      toast("Error guardando taxonomía: " + err.message, "error");
     }
   });
+
+  $("tax-normalizar").addEventListener("click", normalizarRecursos);
+}
+
+// Deriva disciplina/especialidad/categoría/nivel en los recursos que aún no los
+// tienen, a partir de su `area`/`tipo`/texto. No pisa lo ya clasificado a mano.
+async function normalizarRecursos() {
+  const pendientes = recursos.filter((r) => !r.disciplina || !r.especialidad);
+  if (!pendientes.length) {
+    toast("Todos los recursos ya tienen los campos nuevos.", "success");
+    return;
+  }
+  if (!confirm(
+    `Se derivarán los campos nuevos en ${pendientes.length} recursos a partir de su área y texto.\n` +
+    `Podrás revisarlos y corregirlos después. ¿Continuar?`
+  )) return;
+  try {
+    let n = 0;
+    for (const r of pendientes) {
+      const campos = derivarCampos(r, taxonomia);
+      const data = {
+        ...campos,
+        area: campos.especialidad, // compat
+        publico: r.publico?.length ? r.publico : ["estudiantes"],
+      };
+      await updateRecurso(r.id, data, currentUser.email);
+      Object.assign(r, data);
+      n++;
+    }
+    toast(`${n} recursos normalizados.`, "success");
+    refresh();
+  } catch (err) {
+    toast("Error normalizando: " + err.message, "error");
+  }
 }
 
 // --- Arranque ---
-initAreasModal();
+initTaxModal();
 initEditor();
 initToolbar();
 initBulkBar();

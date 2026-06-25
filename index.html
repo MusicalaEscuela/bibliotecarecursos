@@ -47,8 +47,9 @@
       <!-- Barra de herramientas -->
       <section class="toolbar">
         <input id="filter-search" type="search" placeholder="Buscar por título, tema o etiqueta…">
-        <select id="filter-area"><option value="">Todas las áreas</option></select>
-        <select id="filter-tipo"><option value="">Todos los tipos</option></select>
+        <select id="filter-disciplina"><option value="">Todas las disciplinas</option></select>
+        <select id="filter-especialidad"><option value="">Todas las especialidades</option></select>
+        <select id="filter-categoria"><option value="">Todas las categorías</option></select>
         <select id="filter-estado">
           <option value="">Todos los estados</option>
           <option value="publicado">Publicado</option>
@@ -57,7 +58,7 @@
         </select>
         <span id="list-count" class="list-count"></span>
         <div class="toolbar-spacer"></div>
-        <button id="btn-areas" class="btn btn-ghost">Áreas</button>
+        <button id="btn-taxonomia" class="btn btn-ghost">Taxonomía</button>
         <button id="btn-import-toolbar" class="btn btn-ghost">Importar faltantes</button>
         <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
         <button id="btn-new" class="btn btn-primary">+ Nuevo recurso</button>
@@ -66,13 +67,14 @@
       <!-- Barra de acciones masivas -->
       <section id="bulk-bar" class="bulk-bar hidden">
         <span id="bulk-count"></span>
-        <input id="bulk-area" type="text" placeholder="Asignar área…" list="areas-list">
-        <button id="bulk-area-apply" class="btn btn-small">Aplicar área</button>
+        <select id="bulk-disciplina"><option value="">Disciplina…</option></select>
+        <select id="bulk-especialidad"><option value="">Especialidad…</option></select>
+        <select id="bulk-categoria"><option value="">Categoría…</option></select>
+        <button id="bulk-apply" class="btn btn-small">Aplicar a la selección</button>
         <button id="bulk-publish" class="btn btn-small">Publicar</button>
         <button id="bulk-archive" class="btn btn-small">Archivar</button>
         <button id="bulk-delete" class="btn btn-small btn-danger">Eliminar archivados</button>
         <button id="bulk-clear" class="btn btn-small btn-ghost">Deseleccionar</button>
-        <datalist id="areas-list"></datalist>
       </section>
 
       <div id="loading" class="loading hidden">Cargando recursos…</div>
@@ -82,7 +84,7 @@
         <table class="table">
           <thead>
             <tr>
-              <th><input type="checkbox" id="check-all" title="Seleccionar todos los filtrados"></th><th>Título</th><th>Área</th><th>Tipo</th><th>Estado</th><th>Adjuntos</th><th></th>
+              <th><input type="checkbox" id="check-all" title="Seleccionar todos los filtrados"></th><th>Título</th><th>Disciplina</th><th>Especialidad</th><th>Categoría</th><th>Estado</th><th>Adjuntos</th><th></th>
             </tr>
           </thead>
           <tbody id="list-body"></tbody>
@@ -98,11 +100,15 @@
       <label>Título <input id="f-titulo" required></label>
       <label>Descripción <textarea id="f-descripcion" rows="3"></textarea></label>
       <div class="form-row">
-        <label>Área <select id="f-area"></select></label>
-        <label>Tipo <input id="f-tipo" placeholder="Tarea / ejercicio, guía…"></label>
+        <label>Disciplina <select id="f-disciplina"></select></label>
+        <label>Especialidad <select id="f-especialidad"></select></label>
       </div>
       <div class="form-row">
-        <label>Tema <input id="f-tema"></label>
+        <label>Categoría <select id="f-categoria"></select></label>
+        <label>Nivel <select id="f-nivel"></select></label>
+      </div>
+      <div class="form-row">
+        <label>Tema (texto libre) <input id="f-tema" placeholder="Escalas mayores, Canciones…"></label>
         <label>Estado
           <select id="f-estado">
             <option value="publicado">Publicado</option>
@@ -111,6 +117,10 @@
           </select>
         </label>
       </div>
+      <fieldset class="form-fieldset">
+        <legend>Público</legend>
+        <div id="f-publico" class="check-row"></div>
+      </fieldset>
       <label>Etiquetas (separadas por coma) <input id="f-etiquetas"></label>
       <label>Enlaces (uno por línea: <code>nombre | url</code>)
         <textarea id="f-enlaces" rows="4"></textarea>
@@ -125,20 +135,58 @@
     </form>
   </div>
 
-  <!-- Modal de gestión de áreas -->
-  <div id="areas-backdrop" class="modal-backdrop">
-    <div class="modal">
-      <h2>Áreas oficiales</h2>
-      <p class="modal-hint">Esta lista vive en Firestore (<code>config/areas</code>) y es la que usan
-        el Manager y las demás apps de Musicala. Eliminar un área no toca los recursos.</p>
-      <ul id="areas-items" class="areas-items"></ul>
-      <div class="form-inline">
-        <input id="area-new" type="text" placeholder="Nueva área…">
-        <button id="area-add" class="btn btn-small">Agregar</button>
+  <!-- Modal de gestión de la taxonomía -->
+  <div id="tax-backdrop" class="modal-backdrop">
+    <div class="modal modal-wide">
+      <h2>Taxonomía oficial</h2>
+      <p class="modal-hint">Estas listas viven en Firestore (<code>config/taxonomia</code>) y son las que
+        usan el Manager y el HUB de estudiantes. Editar una lista no toca los recursos ya guardados.</p>
+
+      <div class="tax-grid">
+        <section class="tax-col">
+          <h3>Disciplinas</h3>
+          <ul id="tax-disciplinas" class="areas-items"></ul>
+          <div class="form-inline">
+            <input id="tax-disciplina-new" type="text" placeholder="Nueva disciplina…">
+            <button id="tax-disciplina-add" class="btn btn-small" type="button">Agregar</button>
+          </div>
+        </section>
+
+        <section class="tax-col">
+          <h3>Especialidades de
+            <select id="tax-disc-sel"></select>
+          </h3>
+          <ul id="tax-especialidades" class="areas-items"></ul>
+          <div class="form-inline">
+            <input id="tax-especialidad-new" type="text" placeholder="Nueva especialidad…">
+            <button id="tax-especialidad-add" class="btn btn-small" type="button">Agregar</button>
+          </div>
+        </section>
+
+        <section class="tax-col">
+          <h3>Categorías</h3>
+          <ul id="tax-categorias" class="areas-items"></ul>
+          <div class="form-inline">
+            <input id="tax-categoria-new" type="text" placeholder="Nueva categoría…">
+            <button id="tax-categoria-add" class="btn btn-small" type="button">Agregar</button>
+          </div>
+        </section>
+
+        <section class="tax-col">
+          <h3>Niveles</h3>
+          <ul id="tax-niveles" class="areas-items"></ul>
+          <div class="form-inline">
+            <input id="tax-nivel-new" type="text" placeholder="Nuevo nivel…">
+            <button id="tax-nivel-add" class="btn btn-small" type="button">Agregar</button>
+          </div>
+        </section>
       </div>
+
       <div class="modal-actions">
-        <button type="button" id="areas-close" class="btn btn-ghost">Cerrar</button>
-        <button type="button" id="areas-save" class="btn btn-primary">Guardar cambios</button>
+        <button type="button" id="tax-normalizar" class="btn btn-ghost" title="Deriva disciplina/especialidad/categoría/nivel en los recursos que aún no los tienen, a partir de su área y texto.">Normalizar recursos existentes</button>
+        <span class="toolbar-spacer"></span>
+        <button type="button" id="tax-close" class="btn btn-ghost">Cerrar</button>
+        <button type="button" id="tax-save" class="btn btn-primary">Guardar cambios</button>
       </div>
     </div>
   </div>

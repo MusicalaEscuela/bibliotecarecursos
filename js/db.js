@@ -34,6 +34,23 @@ export async function saveAreas(lista, userEmail) {
   });
 }
 
+// Taxonomía oficial (disciplinas, especialidades, categorías, niveles) en
+// config/taxonomia. null = aún no existe (se siembra con DEFAULT_TAXONOMIA).
+const taxonomiaRef = () => doc(db, "config", "taxonomia");
+
+export async function fetchTaxonomia() {
+  const snap = await getDoc(taxonomiaRef());
+  return snap.exists() ? snap.data() : null;
+}
+
+export async function saveTaxonomia(tax, userEmail) {
+  await setDoc(taxonomiaRef(), {
+    ...tax,
+    actualizadoEn: serverTimestamp(),
+    actualizadoPor: userEmail,
+  });
+}
+
 export async function fetchRecursos() {
   const snap = await getDocs(query(recursosCol, orderBy("titulo")));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
