@@ -378,7 +378,9 @@ async function normalizarRecursos() {
       const data = {
         ...campos,
         area: campos.especialidad, // compat
-        publico: r.publico?.length ? r.publico : ["estudiantes"],
+        publico: r.publico?.length
+          ? r.publico
+          : (campos.disciplina === "institucional" ? ["docentes"] : ["estudiantes"]),
       };
       await updateRecurso(r.id, data, currentUser.email);
       Object.assign(r, data);

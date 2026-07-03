@@ -29,7 +29,9 @@ function mapResource(r, taxonomia) {
   };
   // Clasificación nueva derivada del texto/área de Classroom.
   const campos = derivarCampos(base, taxonomia);
-  return { ...base, ...campos, area: campos.especialidad, publico: ["estudiantes"] };
+  // Lo institucional es material interno: público docentes, no estudiantes.
+  const publico = campos.disciplina === "institucional" ? ["docentes"] : ["estudiantes"];
+  return { ...base, ...campos, area: campos.especialidad, publico };
 }
 
 export async function importClassroomExport(userEmail, onProgress, existingIds = [], taxonomia) {

@@ -94,7 +94,15 @@ function collectForm() {
 }
 
 export function initEditor() {
-  $("f-disciplina").addEventListener("change", () => refreshEspecialidades());
+  $("f-disciplina").addEventListener("change", () => {
+    refreshEspecialidades();
+    // Al elegir "institucional", sugiere público docentes (el usuario puede cambiarlo).
+    if ($("f-disciplina").value === "institucional") {
+      $("f-publico").querySelectorAll("input").forEach((c) => {
+        c.checked = c.value === "docentes";
+      });
+    }
+  });
   $("editor-cancel").addEventListener("click", closeEditor);
   $("editor-backdrop").addEventListener("click", (e) => {
     if (e.target === $("editor-backdrop")) closeEditor();
