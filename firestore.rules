@@ -2,10 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function userEmail() {
+      return request.auth.token.email.lower();
+    }
+
     function isAdmin() {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email in [
+      return isSignedIn()
+        && userEmail() in [
           'alekcaballeromusic@gmail.com',
           'catalina.medina.leal@gmail.com',
           'imusicaladocente@gmail.com',
@@ -21,10 +28,25 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Configuración (áreas, etc.)
+    // Configuración (taxonomía, áreas…): lectura abierta, escritura solo admins.
     match /config/{id} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Sugerencias de docentes: cualquiera con cuenta de Google puede proponer un
+    // recurso, pero nunca tocar la biblioteca. Solo los admins leen todas,
+    // aceptan o rechazan; el autor solo ve el estado de lo que él mismo envió.
+    match /sugerencias/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.creadoPor == userEmail());
+      allow create: if isSignedIn()
+        && request.resource.data.creadoPor == userEmail()
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.titulo is string
+        && request.resource.data.titulo.size() > 0
+        && request.resource.data.titulo.size() <= 200;
+      allow update, delete: if isAdmin();
     }
 
     // Todo lo demás, bloqueado.

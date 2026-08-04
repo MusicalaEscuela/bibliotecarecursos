@@ -260,6 +260,32 @@ body {
   .tax-grid { grid-template-columns: 1fr; }
 }
 
+/* Sugerencias */
+.main-narrow { max-width: 760px; }
+.sug-form { display: flex; flex-direction: column; gap: 12px; }
+.sug-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.sug-form input, .sug-form select, .sug-form textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+.sug-list { display: flex; flex-direction: column; gap: 12px; }
+.sug-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.sug-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sug-text { margin: 8px 0 0; font-size: 14px; }
+.sug-nota { color: var(--muted); font-size: 13px; }
+.sug-links { margin: 8px 0 0; padding-left: 18px; font-size: 13px; }
+.sug-links a { color: var(--primary); }
+.sug-actions { display: flex; gap: 8px; margin-top: 10px; }
+
 /* Toasts */
 #toast-host {
   position: fixed;

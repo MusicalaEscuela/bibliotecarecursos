@@ -10,6 +10,7 @@ import {
   writeBatch,
   getDoc,
   query,
+  where,
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -17,6 +18,7 @@ import { app } from "./auth.js";
 
 export const db = getFirestore(app);
 const recursosCol = collection(db, "recursos");
+const sugerenciasCol = collection(db, "sugerencias");
 
 // Lista oficial de áreas en config/areas { lista: [...] }.
 const areasRef = () => doc(db, "config", "areas");
@@ -108,6 +110,49 @@ export async function bulkDelete(ids) {
     await batch.commit();
   }
 }
+
+// --- Sugerencias (colección "sugerencias") ---
+// Las crea cualquier docente autenticado; solo los admins las leen todas y las
+// resuelven. Se ordenan en memoria (son pocas) para no exigir índices.
+
+const porFechaDesc = (a, b) =>
+  (b.creadoEn?.toMillis?.() || 0) - (a.creadoEn?.toMillis?.() || 0);
+
+export async function createSugerencia(data, user) {
+  const ref = doc(sugerenciasCol);
+  await setDoc(ref, {
+    ...data,
+    estado: "pendiente",
+    creadoPor: (user.email || "").toLowerCase(),
+    creadoPorNombre: user.displayName || "",
+    creadoEn: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+// Todas las sugerencias (solo admins pueden leerlas).
+export async function fetchSugerencias() {
+  const snap = await getDocs(sugerenciasCol);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort(porFechaDesc);
+}
+
+// Las sugerencias del propio usuario (lo único que un docente puede leer).
+export async function fetchMisSugerencias(email) {
+  const snap = await getDocs(
+    query(sugerenciasCol, where("creadoPor", "==", (email || "").toLowerCase()))
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort(porFechaDesc);
+}
+
+export async function resolveSugerencia(id, data, userEmail) {
+  await updateDoc(doc(sugerenciasCol, id), {
+    ...data,
+    revisadoEn: serverTimestamp(),
+    revisadoPor: userEmail,
+  });
+}
+
+export const deleteSugerencia = (id) => deleteDoc(doc(sugerenciasCol, id));
 
 // Escritura masiva con ids fijos (para la importación, idempotente).
 export async function bulkSet(items, userEmail) {

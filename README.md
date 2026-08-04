@@ -57,7 +57,33 @@ const q = query(
 );
 ```
 
+## Roles y sugerencias de docentes
+
+Cualquier persona puede entrar con su cuenta de Google, pero lo que ve depende del rol:
+
+| Rol | Qué puede hacer |
+|---|---|
+| **Admin** (correos de `firestore.rules`) | Todo: ver, crear, editar, clasificar, archivar, eliminar, y aceptar o rechazar sugerencias. |
+| **Docente** (cualquier otra cuenta de Google) | Solo enviar sugerencias y ver el estado de las suyas. No lee ni escribe la colección `recursos` desde el Manager. |
+
+Las sugerencias viven en la colección `sugerencias`, **separada de `recursos`**: un docente puede
+crear documentos ahí, pero nunca tocar la biblioteca. Un recurso solo nace cuando un admin abre la
+sugerencia, revisa los datos en el editor y guarda; entonces la sugerencia queda como `aceptada`
+(con `recursoId`) o `rechazada` (con `motivo`, que el autor sí ve).
+
+### Modelo de datos (`sugerencias/{id}`)
+
+| Campo | Descripción |
+|---|---|
+| `titulo`, `descripcion`, `nota` | Propuesta del docente (`nota` es el mensaje para el equipo) |
+| `disciplina`, `especialidad`, `categoria`, `nivel`, `etiquetas`, `enlaces` | Igual que en `recursos` |
+| `estado` | `pendiente` · `aceptada` · `rechazada` |
+| `creadoPor`, `creadoPorNombre`, `creadoEn` | Autor de la sugerencia |
+| `revisadoPor`, `revisadoEn`, `recursoId`, `motivo` | Resolución del admin |
+
 ## Seguridad
 
 - La config de Firebase en `firebase-config.js` es pública por diseño; la protección real son las reglas de Firestore.
-- Solo los 5 correos admin definidos en `firestore.rules` pueden escribir. La lista del front (`firebase-config.js`) es solo para UX; si se cambia, hay que cambiar también las reglas.
+- Solo los 5 correos admin definidos en `firestore.rules` pueden escribir en `recursos` y `config`. La lista del front (`firebase-config.js`) es solo para UX; si se cambia, hay que cambiar también las reglas.
+- En `sugerencias`: crear requiere sesión iniciada y que `creadoPor` sea el correo del propio usuario con `estado: "pendiente"`; leer, solo el autor (lo suyo) o un admin (todo); actualizar y borrar, solo admins.
+- Al cambiar `firestore.rules` hay que **volver a publicarlas** en Firebase Console → Firestore → Reglas.

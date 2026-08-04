@@ -9,10 +9,20 @@ import {
   deleteRecursoForever,
   fetchTaxonomia,
   saveTaxonomia,
+  createSugerencia,
+  fetchSugerencias,
+  fetchMisSugerencias,
+  resolveSugerencia,
+  deleteSugerencia,
 } from "./db.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
 import { openEditor, initEditor } from "./ui/editor.js";
+import {
+  initSugerenciaForm,
+  renderSugerencias,
+  sugerenciaARecurso,
+} from "./ui/sugerencias.js";
 import {
   DEFAULT_TAXONOMIA,
   withDefaults,
@@ -32,6 +42,7 @@ const $ = (id) => document.getElementById(id);
 
 let currentUser = null;
 let recursos = [];
+let sugerencias = [];
 let taxonomia = withDefaults(null);
 
 // Taxonomía oficial (config/taxonomia); si aún no existe el doc, se siembra con
@@ -65,6 +76,7 @@ async function loadData() {
     fillSelectOptions("bulk-categoria", "Categoría…", taxonomia.categorias);
     $("import-panel").classList.add("hidden");
     refresh();
+    loadSugerencias();
   } catch (err) {
     console.error(err);
     toast("Error cargando recursos: " + err.message, "error");
@@ -245,6 +257,133 @@ function initToolbar() {
   });
 }
 
+// --- Sugerencias: lado admin ---
+
+async function loadSugerencias() {
+  try {
+    sugerencias = await fetchSugerencias();
+  } catch (err) {
+    console.error(err);
+    toast("No se pudieron cargar las sugerencias: " + err.message, "error");
+    return;
+  }
+  const pendientes = sugerencias.filter((s) => s.estado === "pendiente").length;
+  $("sug-count").textContent = pendientes;
+  $("sug-count").classList.toggle("hidden", pendientes === 0);
+  renderSugerenciasAdmin();
+}
+
+function renderSugerenciasAdmin() {
+  const estado = $("sug-filter").value;
+  renderSugerencias(
+    "sug-admin-list",
+    estado ? sugerencias.filter((s) => s.estado === estado) : sugerencias,
+    {
+      esAdmin: true,
+      onAceptar: aceptarSugerencia,
+      onRechazar: rechazarSugerencia,
+      onEliminar: eliminarSugerencia,
+    }
+  );
+}
+
+// Aceptar = abrir el editor con los datos de la sugerencia. El recurso solo
+// entra a la biblioteca cuando el admin guarda el formulario.
+function aceptarSugerencia(id) {
+  const s = sugerencias.find((x) => x.id === id);
+  $("sug-backdrop").classList.remove("open");
+  openEditor(sugerenciaARecurso(s), taxonomia, async (_editId, data) => {
+    try {
+      const newId = await createRecurso(
+        { ...data, sugeridoPor: s.creadoPor, sugerenciaId: s.id },
+        currentUser.email
+      );
+      recursos.push({ id: newId, ...data });
+      await resolveSugerencia(s.id, { estado: "aceptada", recursoId: newId }, currentUser.email);
+      Object.assign(s, { estado: "aceptada", recursoId: newId });
+      toast("Sugerencia aceptada y recurso creado", "success");
+      refresh();
+      loadSugerencias();
+    } catch (err) {
+      toast("Error al aceptar la sugerencia: " + err.message, "error");
+    }
+  });
+}
+
+async function rechazarSugerencia(id) {
+  const motivo = prompt("Motivo del rechazo (opcional). Lo verá quien la envió:");
+  if (motivo === null) return;
+  try {
+    await resolveSugerencia(id, { estado: "rechazada", motivo: motivo.trim() }, currentUser.email);
+    Object.assign(sugerencias.find((s) => s.id === id), { estado: "rechazada", motivo: motivo.trim() });
+    toast("Sugerencia rechazada", "success");
+    loadSugerencias();
+  } catch (err) {
+    toast("Error: " + err.message, "error");
+  }
+}
+
+async function eliminarSugerencia(id) {
+  if (!confirm("¿Eliminar definitivamente esta sugerencia?")) return;
+  try {
+    await deleteSugerencia(id);
+    sugerencias = sugerencias.filter((s) => s.id !== id);
+    toast("Sugerencia eliminada", "success");
+    loadSugerencias();
+  } catch (err) {
+    toast("Error: " + err.message, "error");
+  }
+}
+
+function initSugerenciasModal() {
+  $("btn-sugerencias").addEventListener("click", () => {
+    $("sug-backdrop").classList.add("open");
+    loadSugerencias();
+  });
+  $("sug-close").addEventListener("click", () => $("sug-backdrop").classList.remove("open"));
+  $("sug-backdrop").addEventListener("click", (e) => {
+    if (e.target === $("sug-backdrop")) $("sug-backdrop").classList.remove("open");
+  });
+  $("sug-filter").addEventListener("change", renderSugerenciasAdmin);
+  $("sug-reload").addEventListener("click", loadSugerencias);
+}
+
+// --- Sugerencias: lado docente ---
+
+let formDocenteListo = false;
+
+async function loadVistaDocente() {
+  try {
+    // Los docentes solo leen la taxonomía; si aún no existe, usan la de por
+    // defecto (sembrarla en Firestore es cosa de admins).
+    taxonomia = withDefaults(await fetchTaxonomia());
+    if (!formDocenteListo) {
+      initSugerenciaForm(taxonomia, enviarSugerencia);
+      formDocenteListo = true;
+    }
+    await refreshMisSugerencias();
+  } catch (err) {
+    console.error(err);
+    toast("Error cargando la vista de docente: " + err.message, "error");
+  }
+}
+
+async function refreshMisSugerencias() {
+  const mias = await fetchMisSugerencias(currentUser.email);
+  renderSugerencias("mis-sugerencias", mias);
+}
+
+async function enviarSugerencia(data) {
+  try {
+    await createSugerencia(data, currentUser);
+    toast("¡Sugerencia enviada! El equipo la revisará.", "success");
+    await refreshMisSugerencias();
+  } catch (err) {
+    toast("Error al enviar: " + err.message, "error");
+    throw err;
+  }
+}
+
 // --- Gestor de la taxonomía oficial ---
 let taxDraft = null;
 let taxDiscSel = "musica"; // disciplina cuyas especialidades se editan
@@ -398,18 +537,24 @@ initTaxModal();
 initEditor();
 initToolbar();
 initBulkBar();
+initSugerenciasModal();
 $("btn-login").addEventListener("click", () => login().catch((e) => toast(e.message, "error")));
 $("btn-logout").addEventListener("click", logout);
+$("btn-logout-docente").addEventListener("click", logout);
 
+// Tres vistas según el rol: sin sesión → login; admin → Manager completo;
+// cualquier otra cuenta de Google → solo sugerir recursos.
 watchAuth((user, esAdmin) => {
   currentUser = user;
-  $("view-login").classList.toggle("hidden", !!user && esAdmin);
+  $("view-login").classList.toggle("hidden", !!user);
   $("view-app").classList.toggle("hidden", !user || !esAdmin);
-  $("login-denied").classList.toggle("hidden", !user || esAdmin);
-  if (user && esAdmin) {
+  $("view-docente").classList.toggle("hidden", !user || esAdmin);
+  if (!user) return;
+  if (esAdmin) {
     $("user-email").textContent = user.email;
     loadData();
-  } else if (user && !esAdmin) {
-    logout();
+  } else {
+    $("user-email-docente").textContent = user.email;
+    loadVistaDocente();
   }
 });

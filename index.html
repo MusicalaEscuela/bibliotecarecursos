@@ -13,12 +13,58 @@
     <div class="login-card">
       <img src="logo.png" alt="Musicala" class="login-logo">
       <h1>Biblioteca de Recursos</h1>
-      <p>Manager de administración. Solo para el equipo de Musicala.</p>
+      <p>Entra con tu cuenta de Google. Los docentes pueden sugerir recursos;
+        el equipo de Musicala los revisa y publica.</p>
       <button id="btn-login" class="btn btn-primary">Entrar con Google</button>
-      <p id="login-denied" class="login-denied hidden">
-        Ese correo no tiene permisos de administración.
-      </p>
     </div>
+  </div>
+
+  <!-- Vista de docente: solo sugerir -->
+  <div id="view-docente" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img src="logo.png" alt="" class="topbar-logo">
+        <strong>Biblioteca Musicala</strong>
+        <span class="topbar-tag">Docentes</span>
+      </div>
+      <div class="topbar-user">
+        <span id="user-email-docente"></span>
+        <button id="btn-logout-docente" class="btn btn-ghost btn-small">Salir</button>
+      </div>
+    </header>
+
+    <main class="main main-narrow">
+      <section class="panel">
+        <h2>Sugerir un recurso</h2>
+        <p class="modal-hint">Propón material para la biblioteca. Un administrador de Musicala
+          lo revisa antes de publicarlo; mientras tanto queda como sugerencia pendiente.</p>
+        <form id="sug-form" class="sug-form">
+          <label>Título <input id="s-titulo" maxlength="200" required></label>
+          <label>Descripción <textarea id="s-descripcion" rows="3"></textarea></label>
+          <div class="form-row">
+            <label>Disciplina <select id="s-disciplina"></select></label>
+            <label>Especialidad <select id="s-especialidad"></select></label>
+          </div>
+          <div class="form-row">
+            <label>Categoría <select id="s-categoria"></select></label>
+            <label>Nivel <select id="s-nivel"></select></label>
+          </div>
+          <label>Enlaces (uno por línea: <code>nombre | url</code>)
+            <textarea id="s-enlaces" rows="3" placeholder="Partitura | https://…"></textarea>
+          </label>
+          <label>Etiquetas (separadas por coma) <input id="s-etiquetas"></label>
+          <label>Nota para el equipo (opcional) <textarea id="s-nota" rows="2"></textarea></label>
+          <div class="modal-actions">
+            <button type="submit" id="sug-submit" class="btn btn-primary">Enviar sugerencia</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Mis sugerencias</h2>
+        <div id="mis-sugerencias" class="sug-list"></div>
+      </section>
+    </main>
   </div>
 
   <!-- Vista principal -->
@@ -58,6 +104,7 @@
         </select>
         <span id="list-count" class="list-count"></span>
         <div class="toolbar-spacer"></div>
+        <button id="btn-sugerencias" class="btn btn-ghost">Sugerencias <span id="sug-count" class="badge badge-borrador hidden">0</span></button>
         <button id="btn-taxonomia" class="btn btn-ghost">Taxonomía</button>
         <button id="btn-import-toolbar" class="btn btn-ghost">Importar faltantes</button>
         <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
@@ -133,6 +180,29 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
+  </div>
+
+  <!-- Modal de revisión de sugerencias (solo admins) -->
+  <div id="sug-backdrop" class="modal-backdrop">
+    <div class="modal modal-wide">
+      <h2>Sugerencias de docentes</h2>
+      <p class="modal-hint">Al aceptar una sugerencia se abre el editor con los datos ya cargados:
+        revísalos, corrígelos y guarda. El recurso solo entra a la biblioteca cuando tú lo guardas.</p>
+      <div class="form-inline">
+        <select id="sug-filter">
+          <option value="pendiente">Pendientes</option>
+          <option value="aceptada">Aceptadas</option>
+          <option value="rechazada">Rechazadas</option>
+          <option value="">Todas</option>
+        </select>
+        <span class="toolbar-spacer"></span>
+        <button id="sug-reload" class="btn btn-small btn-ghost" type="button">Actualizar</button>
+      </div>
+      <div id="sug-admin-list" class="sug-list"></div>
+      <div class="modal-actions">
+        <button type="button" id="sug-close" class="btn btn-ghost">Cerrar</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal de gestión de la taxonomía -->
