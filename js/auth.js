@@ -17,6 +17,9 @@ provider.setCustomParameters({ prompt: "select_account" });
 export const isAdmin = (user) =>
   !!user && ADMIN_EMAILS.includes((user.email || "").toLowerCase());
 
+// uid del usuario en sesión (lo pide Storage para armar la ruta del archivo).
+export const uidActual = () => auth.currentUser?.uid || null;
+
 export const login = () => signInWithPopup(auth, provider);
 export const logout = () => signOut(auth);
 

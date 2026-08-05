@@ -15,6 +15,7 @@ import {
   resolveSugerencia,
   deleteSugerencia,
 } from "./db.js";
+import { borrarArchivosDe } from "./storage.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
 import { openEditor, initEditor } from "./ui/editor.js";
@@ -324,8 +325,17 @@ async function rechazarSugerencia(id) {
 }
 
 async function eliminarSugerencia(id) {
-  if (!confirm("¿Eliminar definitivamente esta sugerencia?")) return;
+  const s = sugerencias.find((x) => x.id === id);
+  const archivos = (s.enlaces || []).filter((e) => e.storagePath);
+  // Si la sugerencia fue aceptada, sus archivos ya viven en un recurso: borrarlos
+  // dejaría el recurso con enlaces rotos.
+  const borrarArchivos = archivos.length && s.estado !== "aceptada";
+  if (!confirm(
+    "¿Eliminar definitivamente esta sugerencia?" +
+    (borrarArchivos ? `\n\nTambién se borrarán ${archivos.length} archivo(s) subidos.` : "")
+  )) return;
   try {
+    if (borrarArchivos) await borrarArchivosDe(archivos);
     await deleteSugerencia(id);
     sugerencias = sugerencias.filter((s) => s.id !== id);
     toast("Sugerencia eliminada", "success");

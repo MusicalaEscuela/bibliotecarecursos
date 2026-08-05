@@ -283,6 +283,16 @@ body {
 .sug-text { margin: 8px 0 0; font-size: 14px; }
 .sug-nota { color: var(--muted); font-size: 13px; }
 .sug-links { margin: 8px 0 0; padding-left: 18px; font-size: 13px; }
+.sug-form .form-fieldset { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+.sug-form .form-fieldset .modal-hint { margin: 0; }
+input[type="file"] { padding: 6px; font-size: 13px; background: var(--bg); cursor: pointer; }
+.upload-progress:not(:empty) {
+  font-size: 13px;
+  color: var(--primary-dark);
+  background: #efedff;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
 .sug-links a { color: var(--primary); }
 .sug-actions { display: flex; gap: 8px; margin-top: 10px; }
 

@@ -1,0 +1,54 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email.lower() in [
+          'alekcaballeromusic@gmail.com',
+          'catalina.medina.leal@gmail.com',
+          'imusicaladocente@gmail.com',
+          'musicalaasesor@gmail.com',
+          'imusicala@gmail.com'
+        ];
+    }
+
+    // Tipos que aceptamos como material de la biblioteca. Cualquier otra cosa
+    // (ejecutables, archivos comprimidos…) se rechaza.
+    function tipoPermitido() {
+      let t = request.resource.contentType;
+      return t.matches('application/pdf')
+        || t.matches('image/.*')
+        || t.matches('audio/.*')
+        || t.matches('video/.*')
+        || t.matches('text/plain')
+        || t.matches('application/msword')
+        || t.matches('application/vnd.ms-.*')
+        || t.matches('application/vnd.openxmlformats-officedocument.*')
+        || t.matches('application/vnd.oasis.opendocument.*');
+    }
+
+    // Archivos de la biblioteca, en la carpeta de quien los sube.
+    // Lectura pública: una vez el recurso está publicado, el HUB de estudiantes
+    // y las demás apps abren el enlace sin autenticarse (igual que /recursos).
+    match /biblioteca/{uid}/{archivo=**} {
+      allow read: if true;
+      allow create, update: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.size <= 25 * 1024 * 1024
+        && tipoPermitido();
+      // El autor puede borrar lo suyo; los admins, cualquier cosa (limpieza de
+      // sugerencias rechazadas).
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
+    }
+
+    // Todo lo demás, bloqueado.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

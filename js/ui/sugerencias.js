@@ -1,5 +1,8 @@
 // Sugerencias de recursos: formulario del docente y panel de revisión del admin.
 import { especialidadesDe } from "../taxonomia.js";
+import { uidActual } from "../auth.js";
+import { subirArchivos, mensajeErrorSubida, formatoTamano } from "../storage.js";
+import { toast } from "./toast.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
@@ -62,18 +65,43 @@ export function initSugerenciaForm(tax, onSubmit) {
     };
     $("sug-submit").disabled = true;
     try {
+      // Los archivos subidos entran como enlaces más: aguas abajo, un PDF
+      // subido y una URL pegada son lo mismo.
+      const archivos = $("s-archivos").files;
+      if (archivos.length) {
+        const subidos = await subirArchivos(archivos, uidActual(), (i, total, nombre, pct) =>
+          mostrarProgreso("s-upload", i, total, nombre, pct)
+        );
+        data.enlaces = [...data.enlaces, ...subidos];
+      }
+    } catch (err) {
+      toast(mensajeErrorSubida(err), "error");
+      $("sug-submit").disabled = false;
+      $("s-upload").textContent = "";
+      return;
+    }
+
+    try {
       await onSubmit(data);
       resetSugerenciaForm();
     } catch {
       // El llamador ya avisó del error; se conserva lo escrito para reintentar.
     } finally {
       $("sug-submit").disabled = false;
+      $("s-upload").textContent = "";
     }
   });
 }
 
+// Progreso de subida compartido por el formulario del docente y el editor.
+export function mostrarProgreso(hostId, i, total, nombre, pct) {
+  $(hostId).textContent = `Subiendo ${i}/${total}: ${nombre} — ${pct}%`;
+}
+
 export function resetSugerenciaForm() {
   ["s-titulo", "s-descripcion", "s-enlaces", "s-etiquetas", "s-nota"].forEach((id) => ($(id).value = ""));
+  $("s-archivos").value = "";
+  $("s-upload").textContent = "";
   $("s-titulo").focus();
 }
 
@@ -87,7 +115,14 @@ const badgeEstado = {
 
 function cardHTML(s, esAdmin) {
   const enlaces = (s.enlaces || [])
-    .map((e) => `<li><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.titulo || e.url)}</a></li>`)
+    .map(
+      (e) =>
+        `<li><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.titulo || e.url)}</a>` +
+        (e.storagePath
+          ? ` <span class="cell-sub">📎 archivo${e.tamano ? ` · ${esc(formatoTamano(e.tamano))}` : ""}</span>`
+          : "") +
+        `</li>`
+    )
     .join("");
   return `
     <article class="sug-card" data-id="${esc(s.id)}">
@@ -105,17 +140,20 @@ function cardHTML(s, esAdmin) {
       ${enlaces ? `<ul class="sug-links">${enlaces}</ul>` : ""}
       ${s.motivo ? `<p class="sug-text sug-nota">Respuesta del equipo: ${esc(s.motivo)}</p>` : ""}
       ${
-        esAdmin && s.estado === "pendiente"
+        esAdmin
           ? `<div class="sug-actions">
-               <button class="btn btn-small btn-primary act-aceptar">Revisar y aceptar</button>
-               <button class="btn btn-small act-rechazar">Rechazar</button>
-             </div>`
-          : ""
-      }
-      ${
-        esAdmin && s.estado !== "pendiente"
-          ? `<div class="sug-actions">
-               <button class="btn btn-small btn-danger act-eliminar">Eliminar sugerencia</button>
+               ${
+                 s.estado === "pendiente"
+                   ? `<button class="btn btn-small btn-primary act-aceptar">Revisar y aceptar</button>
+                      <button class="btn btn-small act-rechazar">Rechazar</button>`
+                   : ""
+               }
+               <span class="toolbar-spacer"></span>
+               <button class="btn btn-small btn-danger act-eliminar">Eliminar${
+                 (s.enlaces || []).some((e) => e.storagePath) && s.estado !== "aceptada"
+                   ? " (con sus archivos)"
+                   : ""
+               }</button>
              </div>`
           : ""
       }

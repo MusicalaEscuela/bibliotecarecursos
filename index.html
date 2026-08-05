@@ -49,9 +49,17 @@
             <label>Categoría <select id="s-categoria"></select></label>
             <label>Nivel <select id="s-nivel"></select></label>
           </div>
-          <label>Enlaces (uno por línea: <code>nombre | url</code>)
-            <textarea id="s-enlaces" rows="3" placeholder="Partitura | https://…"></textarea>
-          </label>
+          <fieldset class="form-fieldset">
+            <legend>El recurso</legend>
+            <p class="modal-hint">Puedes pegar enlaces, subir archivos, o las dos cosas.</p>
+            <label>Enlaces (uno por línea: <code>nombre | url</code>)
+              <textarea id="s-enlaces" rows="3" placeholder="Partitura | https://…"></textarea>
+            </label>
+            <label>Subir archivos (PDF, imagen, audio, video o documento · máx. 25 MB c/u)
+              <input id="s-archivos" type="file" multiple>
+            </label>
+            <div id="s-upload" class="upload-progress"></div>
+          </fieldset>
           <label>Etiquetas (separadas por coma) <input id="s-etiquetas"></label>
           <label>Nota para el equipo (opcional) <textarea id="s-nota" rows="2"></textarea></label>
           <div class="modal-actions">
@@ -172,6 +180,10 @@
       <label>Enlaces (uno por línea: <code>nombre | url</code>)
         <textarea id="f-enlaces" rows="4"></textarea>
       </label>
+      <label>Subir archivos (se agregan a los enlaces · máx. 25 MB c/u)
+        <input id="f-archivos" type="file" multiple>
+      </label>
+      <div id="f-upload" class="upload-progress"></div>
       <label class="check-label">
         <input id="f-musicala" type="checkbox" checked> Es material de Musicala
       </label>

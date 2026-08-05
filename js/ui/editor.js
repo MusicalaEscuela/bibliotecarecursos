@@ -1,11 +1,18 @@
 // Modal de creación/edición de un recurso.
 import { especialidadesDe } from "../taxonomia.js";
+import { uidActual } from "../auth.js";
+import { subirArchivos, mensajeErrorSubida } from "../storage.js";
+import { mostrarProgreso } from "./sugerencias.js";
+import { toast } from "./toast.js";
 
 const $ = (id) => document.getElementById(id);
 
 let onSaveCallback = null;
 let editingId = null;
 let taxonomia = null;
+// Enlaces tal como llegaron: el textarea solo guarda "nombre | url", así que hay
+// que reponer los campos extra (storagePath, tamaño…) al recomponerlos.
+let enlacesOriginales = [];
 
 const fillSelect = (sel, valores, seleccionado) => {
   sel.innerHTML = valores
@@ -35,9 +42,12 @@ export function openEditor(recurso, tax, onSave) {
   $("f-tema").value = recurso?.tema || "";
   $("f-etiquetas").value = (recurso?.etiquetas || []).join(", ");
   $("f-estado").value = recurso?.estado || "publicado";
-  $("f-enlaces").value = (recurso?.enlaces || [])
+  enlacesOriginales = recurso?.enlaces || [];
+  $("f-enlaces").value = enlacesOriginales
     .map((e) => `${e.titulo || e.nombre || ""} | ${e.url || ""}`)
     .join("\n");
+  $("f-archivos").value = "";
+  $("f-upload").textContent = "";
 
   // Disciplina → especialidad (dependiente) → categoría → nivel.
   // Compat: si el recurso es viejo, deriva la especialidad del campo `area`.
@@ -88,7 +98,10 @@ function collectForm() {
       .filter(Boolean)
       .map((line) => {
         const [titulo, url] = line.split("|").map((s) => s.trim());
-        return url ? { titulo, url } : { titulo: "", url: titulo };
+        const enlace = url ? { titulo, url } : { titulo: "", url: titulo };
+        // Si el enlace ya existía, conserva sus metadatos (storagePath…).
+        const original = enlacesOriginales.find((o) => o.url === enlace.url);
+        return original ? { ...original, ...enlace } : enlace;
       }),
   };
 }
@@ -107,11 +120,27 @@ export function initEditor() {
   $("editor-backdrop").addEventListener("click", (e) => {
     if (e.target === $("editor-backdrop")) closeEditor();
   });
-  $("editor-form").addEventListener("submit", (e) => {
+  $("editor-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = collectForm();
     if (!data.titulo) return;
-    onSaveCallback?.(editingId, data);
-    closeEditor();
+    const btnGuardar = $("editor-form").querySelector('button[type="submit"]');
+    btnGuardar.disabled = true;
+    try {
+      const archivos = $("f-archivos").files;
+      if (archivos.length) {
+        const subidos = await subirArchivos(archivos, uidActual(), (i, total, nombre, pct) =>
+          mostrarProgreso("f-upload", i, total, nombre, pct)
+        );
+        data.enlaces = [...data.enlaces, ...subidos];
+      }
+      onSaveCallback?.(editingId, data);
+      closeEditor();
+    } catch (err) {
+      toast(mensajeErrorSubida(err), "error");
+    } finally {
+      btnGuardar.disabled = false;
+      $("f-upload").textContent = "";
+    }
   });
 }
