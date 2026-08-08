@@ -16,6 +16,7 @@ import {
   deleteSugerencia,
 } from "./db.js";
 import { borrarArchivosDe } from "./storage.js";
+import { buscarDuplicados, mensajeDuplicados } from "./duplicados.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
 import { openEditor, initEditor } from "./ui/editor.js";
@@ -292,6 +293,8 @@ function renderSugerenciasAdmin() {
 // entra a la biblioteca cuando el admin guarda el formulario.
 function aceptarSugerencia(id) {
   const s = sugerencias.find((x) => x.id === id);
+  const yaExiste = buscarDuplicados(s, recursos);
+  if (yaExiste.length && !confirm(mensajeDuplicados(yaExiste, "la biblioteca"))) return;
   $("sug-backdrop").classList.remove("open");
   openEditor(sugerenciaARecurso(s), taxonomia, async (_editId, data) => {
     try {
@@ -361,14 +364,22 @@ function initSugerenciasModal() {
 // --- Sugerencias: lado docente ---
 
 let formDocenteListo = false;
+let misSugerencias = [];
 
 async function loadVistaDocente() {
   try {
     // Los docentes solo leen la taxonomía; si aún no existe, usan la de por
     // defecto (sembrarla en Firestore es cosa de admins).
     taxonomia = withDefaults(await fetchTaxonomia());
+    // La biblioteca es de lectura pública: el docente puede compararla contra
+    // lo que va a sugerir para no proponer algo que ya existe.
+    try {
+      recursos = await fetchRecursos();
+    } catch {
+      recursos = []; // sin catálogo solo se revisan las sugerencias propias
+    }
     if (!formDocenteListo) {
-      initSugerenciaForm(taxonomia, enviarSugerencia);
+      initSugerenciaForm(taxonomia, enviarSugerencia, confirmarSinDuplicados);
       formDocenteListo = true;
     }
     await refreshMisSugerencias();
@@ -379,8 +390,23 @@ async function loadVistaDocente() {
 }
 
 async function refreshMisSugerencias() {
-  const mias = await fetchMisSugerencias(currentUser.email);
-  renderSugerencias("mis-sugerencias", mias);
+  misSugerencias = await fetchMisSugerencias(currentUser.email);
+  renderSugerencias("mis-sugerencias", misSugerencias);
+}
+
+// Antes de guardar: avisa si el recurso ya está en la biblioteca o si el propio
+// docente ya lo sugirió. Devuelve false si decide no continuar.
+async function confirmarSinDuplicados(data) {
+  const publicados = buscarDuplicados(data, recursos);
+  if (publicados.length && !confirm(mensajeDuplicados(publicados, "la biblioteca"))) return false;
+
+  const previas = buscarDuplicados(
+    data,
+    misSugerencias.filter((s) => s.estado !== "rechazada")
+  );
+  if (previas.length && !confirm(mensajeDuplicados(previas, "tus sugerencias"))) return false;
+
+  return true;
 }
 
 async function enviarSugerencia(data) {

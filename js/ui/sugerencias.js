@@ -33,7 +33,7 @@ const fecha = (ts) =>
 
 let taxonomia = null;
 
-export function initSugerenciaForm(tax, onSubmit) {
+export function initSugerenciaForm(tax, onSubmit, onValidar) {
   taxonomia = tax;
   fillSelect($("s-disciplina"), taxonomia.disciplinas, "musica");
   fillSelect($("s-especialidad"), especialidadesDe(taxonomia, "musica"), "general");
@@ -63,6 +63,10 @@ export function initSugerenciaForm(tax, onSubmit) {
       etiquetas: $("s-etiquetas").value.split(",").map((t) => t.trim()).filter(Boolean),
       enlaces: parseEnlaces($("s-enlaces").value),
     };
+    // Se revisan los duplicados antes de subir nada: si el docente se echa
+    // atrás, no quedan archivos huérfanos en Storage.
+    if (onValidar && !(await onValidar(data))) return;
+
     $("sug-submit").disabled = true;
     try {
       // Los archivos subidos entran como enlaces más: aguas abajo, un PDF
