@@ -9,11 +9,13 @@ export const firebaseConfig = {
   appId: "1:803045423554:web:9bd5bda0d45f9e33f07e5b",
 };
 
-// Correos con permiso de administración (debe coincidir con firestore.rules).
+// Correos con permiso de administración. Esta lista es solo de UX (decide qué
+// vista se muestra); quien manda de verdad es isAdmin() en firestore.rules y
+// storage.rules. Las tres listas deben coincidir: si una cuenta sobra aquí, esa
+// persona ve el Manager completo y le falla cada guardado sin saber por qué.
 export const ADMIN_EMAILS = [
   "alekcaballeromusic@gmail.com",
   "catalina.medina.leal@gmail.com",
-  "imusicaladocente@gmail.com",
   "musicalaasesor@gmail.com",
   "imusicala@gmail.com",
 ];

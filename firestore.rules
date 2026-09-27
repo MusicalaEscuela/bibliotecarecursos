@@ -15,22 +15,32 @@ service cloud.firestore {
         && userEmail() in [
           'alekcaballeromusic@gmail.com',
           'catalina.medina.leal@gmail.com',
-          'imusicaladocente@gmail.com',
           'musicalaasesor@gmail.com',
           'imusicala@gmail.com'
         ];
     }
 
-    // Recursos de la biblioteca: lectura abierta (las otras apps leen de aquí),
-    // escritura solo para admins de Musicala.
+    // Recursos de la biblioteca: escritura solo para admins de Musicala.
+    //
+    // OJO — la lectura abierta NO es un descuido, es carga estructural. El HUB
+    // de estudiantes inicializa este proyecto como app secundaria y solo llama
+    // getFirestore, nunca getAuth (ver Estudiantes HUB/src/firebase.js): sus
+    // usuarios se autentican contra musicala-docentes-hub y bitacoras-de-clase,
+    // y un token de Firebase solo vale en el proyecto que lo emitió. Cambiar
+    // esto a `request.auth != null` deja sin recursos a todos los estudiantes
+    // de inmediato, aunque hayan iniciado sesión. Para cerrarlo de verdad hay
+    // que tocar antes el repo del HUB (Cloud Function o custom claims).
     match /recursos/{id} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Configuración (taxonomía, áreas…): lectura abierta, escritura solo admins.
+    // Configuración (taxonomía, áreas…): solo hace falta con sesión iniciada
+    // —el Manager la carga al entrar y el formulario de sugerencias la usa para
+    // los desplegables—. Ninguna app externa la lee, así que no va abierta.
+    // Escritura, solo admins.
     match /config/{id} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 

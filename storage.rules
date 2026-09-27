@@ -11,7 +11,6 @@ service firebase.storage {
         && request.auth.token.email.lower() in [
           'alekcaballeromusic@gmail.com',
           'catalina.medina.leal@gmail.com',
-          'imusicaladocente@gmail.com',
           'musicalaasesor@gmail.com',
           'imusicala@gmail.com'
         ];
@@ -33,10 +32,14 @@ service firebase.storage {
     }
 
     // Archivos de la biblioteca, en la carpeta de quien los sube.
-    // Lectura pública: una vez el recurso está publicado, el HUB de estudiantes
+    // `get` es público: una vez el recurso está publicado, el HUB de estudiantes
     // y las demás apps abren el enlace sin autenticarse (igual que /recursos).
+    // `list` NO: con el listado abierto, cualquiera podía enumerar y descargar
+    // el bucket entero. Cerrarlo no afecta ningún enlace ya publicado, porque
+    // abrir un archivo por su URL es `get`, no `list`.
     match /biblioteca/{uid}/{archivo=**} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if isAdmin();
       allow create, update: if isSignedIn()
         && request.auth.uid == uid
         && request.resource.size <= 25 * 1024 * 1024

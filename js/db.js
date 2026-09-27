@@ -168,3 +168,32 @@ export async function bulkSet(items, userEmail) {
     await batch.commit();
   }
 }
+
+// Sincronización del repertorio: escribe el plan de planificarSync() en lotes.
+// Las nuevas se crean completas; las existentes se actualizan con merge, así
+// que `estado`, `publico` y `creadoEn` no se pisan. Un lote que falla no
+// detiene los demás: se informa en `errores`.
+export async function upsertCanciones(plan, userEmail, onProgress) {
+  const ops = [
+    ...plan.crear.map((x) => ({ ...x, nueva: true })),
+    ...plan.actualizar.map((x) => ({ ...x, nueva: false })),
+  ];
+  const res = { creadas: 0, actualizadas: 0, errores: [] };
+  for (let i = 0; i < ops.length; i += 400) {
+    const lote = ops.slice(i, i + 400);
+    const batch = writeBatch(db);
+    for (const { id, data, nueva } of lote) {
+      const meta = { actualizadoEn: serverTimestamp(), actualizadoPor: userEmail };
+      if (nueva) batch.set(doc(recursosCol, id), { ...data, ...meta, creadoEn: serverTimestamp() });
+      else batch.set(doc(recursosCol, id), { ...data, ...meta }, { merge: true });
+    }
+    try {
+      await batch.commit();
+      for (const op of lote) op.nueva ? res.creadas++ : res.actualizadas++;
+    } catch (err) {
+      res.errores.push(`Lote ${i / 400 + 1} (${lote.length} canciones): ${err.message}`);
+    }
+    onProgress?.(Math.min(i + lote.length, ops.length), ops.length);
+  }
+  return res;
+}

@@ -14,7 +14,14 @@ import {
   fetchMisSugerencias,
   resolveSugerencia,
   deleteSugerencia,
+  upsertCanciones,
 } from "./db.js";
+import {
+  SHEET_REPERTORIO_PIANO,
+  TIPO_CANCION,
+  planificarSync,
+  resumenPlan,
+} from "./repertorio.js";
 import { borrarArchivosDe } from "./storage.js";
 import { buscarDuplicados, mensajeDuplicados } from "./duplicados.js";
 import { importClassroomExport } from "./importer.js";
@@ -38,6 +45,8 @@ import {
   fillFilterOptions,
   selection,
   clearSelection,
+  setVista,
+  getVista,
 } from "./ui/list.js";
 
 const $ = (id) => document.getElementById(id);
@@ -87,8 +96,17 @@ async function loadData() {
   }
 }
 
+// Géneros ya usados en el repertorio (sugerencias del campo Género).
+const generosUsados = () =>
+  [...new Set(recursos.map((r) => r.cancion?.genero).filter(Boolean))].sort();
+
 function handleEdit(id) {
-  const recurso = recursos.find((r) => r.id === id);
+  // En la pestaña Repertorio, "+ Nuevo" arranca como canción de piano.
+  const recurso = id
+    ? recursos.find((r) => r.id === id)
+    : getVista() === "repertorio"
+      ? { tipo: TIPO_CANCION, disciplina: "musica", especialidad: "piano", categoria: "repertorio", cancion: { nivel: 0 } }
+      : null;
   openEditor(recurso, taxonomia, async (editId, data) => {
     try {
       if (editId) {
@@ -104,7 +122,7 @@ function handleEdit(id) {
     } catch (err) {
       toast("Error al guardar: " + err.message, "error");
     }
-  });
+  }, { generos: generosUsados() });
 }
 
 async function handleArchive(id) {
@@ -219,8 +237,22 @@ function initBulkBar() {
 }
 
 function initToolbar() {
-  ["filter-search", "filter-disciplina", "filter-especialidad", "filter-categoria", "filter-estado"].forEach(
-    (id) => $(id).addEventListener("input", refresh)
+  [
+    "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
+    "filter-estado", "filter-nivel-cancion", "filter-genero", "filter-contenido", "filter-guia",
+  ].forEach((id) => $(id).addEventListener("input", () => {
+    toggleSongFilters();
+    refresh();
+  }));
+  document.querySelectorAll(".tab").forEach((tab) =>
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
+      setVista(tab.dataset.vista);
+      $("btn-new").textContent = tab.dataset.vista === "repertorio" ? "+ Nueva canción" : "+ Nuevo recurso";
+      clearSelection();
+      toggleSongFilters();
+      refresh();
+    })
   );
   $("btn-new").addEventListener("click", () => handleEdit(null));
   $("btn-export").addEventListener("click", () => {
@@ -255,6 +287,85 @@ function initToolbar() {
     } finally {
       $("btn-import").disabled = false;
       $("import-progress").textContent = "";
+    }
+  });
+}
+
+// Los filtros de canción se ven en la pestaña Repertorio o al filtrar por tipo Canción.
+function toggleSongFilters() {
+  const visible = getVista() === "repertorio" || $("filter-tipo").value === TIPO_CANCION;
+  $("song-filters").classList.toggle("hidden", !visible);
+  if (!visible) {
+    ["filter-nivel-cancion", "filter-genero", "filter-contenido", "filter-guia"].forEach((id) => ($(id).value = ""));
+  }
+}
+
+// --- Sincronizar repertorio desde el Google Sheet ---
+let planSync = null;
+
+function initSyncModal() {
+  const cerrar = () => $("sync-backdrop").classList.remove("open");
+  $("btn-sync-repertorio").addEventListener("click", () => {
+    planSync = null;
+    $("sync-confirmar").disabled = true;
+    $("sync-progress").textContent = "";
+    $("sync-resumen").textContent = "Pulsa «Simular» para ver qué cambiaría.";
+    $("sync-backdrop").classList.add("open");
+  });
+  $("sync-close").addEventListener("click", cerrar);
+  $("sync-backdrop").addEventListener("click", (e) => {
+    if (e.target === $("sync-backdrop")) cerrar();
+  });
+
+  // Simulacro: lee el Sheet y lo compara con Firestore. No escribe nada.
+  $("sync-simular").addEventListener("click", async () => {
+    $("sync-simular").disabled = true;
+    $("sync-confirmar").disabled = true;
+    $("sync-resumen").textContent = "Leyendo el Sheet y la biblioteca…";
+    try {
+      const res = await fetch(SHEET_REPERTORIO_PIANO, { cache: "no-store" });
+      if (!res.ok) throw new Error(`No se pudo leer el Sheet (${res.status})`);
+      recursos = await fetchRecursos(); // estado fresco, por si alguien más editó
+      planSync = planificarSync(await res.text(), recursos);
+      $("sync-resumen").textContent = "SIMULACRO — aún no se ha escrito nada.\n\n" + resumenPlan(planSync);
+      $("sync-confirmar").disabled = !(planSync.crear.length + planSync.actualizar.length);
+    } catch (err) {
+      $("sync-resumen").textContent = "Error: " + err.message;
+    } finally {
+      $("sync-simular").disabled = false;
+    }
+  });
+
+  $("sync-confirmar").addEventListener("click", async () => {
+    if (!planSync) return;
+    const n = planSync.crear.length + planSync.actualizar.length;
+    if (!confirm(`Se escribirán ${n} canciones en la biblioteca (${planSync.crear.length} nuevas, ${planSync.actualizar.length} actualizadas). ¿Continuar?`))
+      return;
+    $("sync-confirmar").disabled = true;
+    $("sync-simular").disabled = true;
+    try {
+      const r = await upsertCanciones(planSync, currentUser.email, (hechas, total) => {
+        $("sync-progress").textContent = `Escribiendo… ${hechas}/${total}`;
+      });
+      const informe = [
+        "REPORTE DE SINCRONIZACIÓN",
+        `Creadas: ${r.creadas}`,
+        `Actualizadas: ${r.actualizadas}`,
+        `Sin cambios: ${planSync.sinCambios.length}`,
+        `Sin guías: ${planSync.sinGuias.length}${planSync.sinGuias.length ? " — " + planSync.sinGuias.join(" · ") : ""}`,
+        `Errores: ${r.errores.length + planSync.errores.length}`,
+        ...[...planSync.errores, ...r.errores].map((e) => "  • " + e),
+      ].join("\n");
+      $("sync-resumen").textContent = informe;
+      $("sync-progress").textContent = "";
+      toast(`Repertorio sincronizado: ${r.creadas} nuevas, ${r.actualizadas} actualizadas`,
+        r.errores.length ? "error" : "success");
+      planSync = null;
+      await loadData();
+    } catch (err) {
+      $("sync-resumen").textContent = "Error: " + err.message;
+    } finally {
+      $("sync-simular").disabled = false;
     }
   });
 }
@@ -574,6 +685,7 @@ initEditor();
 initToolbar();
 initBulkBar();
 initSugerenciasModal();
+initSyncModal();
 $("btn-login").addEventListener("click", () => login().catch((e) => toast(e.message, "error")));
 $("btn-logout").addEventListener("click", logout);
 $("btn-logout-docente").addEventListener("click", logout);
