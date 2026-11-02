@@ -1,3 +1,4 @@
+import { diagnosticar } from "../catalogo.js";
 // Render de la tabla de recursos, filtros y selección múltiple.
 import { esCancion, estrellas } from "../repertorio.js";
 
@@ -61,6 +62,8 @@ export function getFilters() {
     disciplina: $("filter-disciplina").value,
     especialidad: $("filter-especialidad").value,
     categoria: $("filter-categoria").value,
+    nivel: $("filter-nivel").value,
+    revision: $("filter-revision").value,
     estado: $("filter-estado").value,
   };
 }
@@ -81,6 +84,8 @@ export function applyFilters(recursos, f) {
     if (f.disciplina && (r.disciplina || "") !== f.disciplina) return false;
     if (f.especialidad && especialidadDe(r) !== f.especialidad) return false;
     if (f.categoria && categoriaDe(r) !== f.categoria) return false;
+    if (f.nivel && r.nivel !== f.nivel) return false;
+    if (f.revision && !diagnosticar(r).incidencias.includes(f.revision)) return false;
     if (f.estado && r.estado !== f.estado) return false;
     if (f.search.length) {
       const haystack = searchableText(r);
@@ -102,6 +107,7 @@ export function fillFilterOptions(recursos) {
   fill("filter-disciplina", new Set(recursos.map((r) => r.disciplina).filter(Boolean)), "Todas las disciplinas");
   fill("filter-especialidad", new Set(recursos.map(especialidadDe).filter(Boolean)), "Todas las especialidades");
   fill("filter-categoria", new Set(recursos.map(categoriaDe).filter(Boolean)), "Todas las categorías");
+  fill("filter-nivel", new Set(recursos.map(r => r.nivel).filter(Boolean)), "Dificultad: todas");
   fill("filter-tipo", new Set(recursos.map((r) => r.tipo).filter(Boolean)), "Todos los tipos");
   fill("filter-genero", new Set(recursos.map((r) => r.cancion?.genero).filter(Boolean)), "Todos los géneros");
 }

@@ -238,7 +238,7 @@ function initBulkBar() {
 
 function initToolbar() {
   [
-    "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
+    "filter-nivel", "filter-revision", "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
     "filter-estado", "filter-nivel-cancion", "filter-genero", "filter-contenido", "filter-guia",
   ].forEach((id) => $(id).addEventListener("input", () => {
     toggleSongFilters();
