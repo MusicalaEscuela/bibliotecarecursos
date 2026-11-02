@@ -175,3 +175,5 @@ El botón **Organizar catálogo** prepara una propuesta a partir de los registro
 `js/organizacion.js` contiene las reglas y la recuperación de enlaces. Los títulos que contienen `|` se conservan completos al editar o sugerir recursos. Las categorías se completan por tema y título; cuando no hay evidencia se usa `material-apoyo`. Los posibles duplicados requieren comparar artista, arreglo y enlaces antes de fusionar.
 
 Verificación: `node tests/organizacion.test.mjs`.
+
+El administrador dibuja 50 resultados por página para mantener ágil la edición. La búsqueda y «Seleccionar todos» abarcan todos los resultados filtrados, incluso los de otras páginas. La búsqueda espera 180 ms desde la última tecla y no reconstruye los desplegables. Prueba de navegador con 2.001 registros y CPU ralentizada: `node tests/editor-performance.browser.mjs` (Playwright y Edge).

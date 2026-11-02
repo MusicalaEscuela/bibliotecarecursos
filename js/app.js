@@ -70,8 +70,8 @@ async function loadTaxonomia() {
   }
 }
 
-function refresh() {
-  fillFilterOptions(recursos);
+function refresh({ rebuildOptions = true } = {}) {
+  if (rebuildOptions) fillFilterOptions(recursos);
   renderList(applyFilters(recursos, getFilters()), {
     onEdit: handleEdit,
     onArchive: handleArchive,
@@ -238,12 +238,18 @@ function initBulkBar() {
 }
 
 function initToolbar() {
+  let searchTimer;
   [
     "filter-objetivo", "filter-formato", "filter-nivel", "filter-revision", "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
     "filter-estado", "filter-nivel-cancion", "filter-genero", "filter-contenido", "filter-guia",
   ].forEach((id) => $(id).addEventListener("input", () => {
     toggleSongFilters();
-    refresh();
+    clearTimeout(searchTimer);
+    if (id === "filter-search") {
+      searchTimer = setTimeout(() => refresh({ rebuildOptions: false }), 180);
+    } else {
+      refresh({ rebuildOptions: false });
+    }
   }));
   document.querySelectorAll(".tab").forEach((tab) =>
     tab.addEventListener("click", () => {

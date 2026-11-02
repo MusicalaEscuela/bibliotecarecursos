@@ -9,6 +9,9 @@ const esc = (s) =>
   })[c]);
 
 export const selection = new Set();
+const PAGE_SIZE = 50;
+let pagina = 1;
+let resultadosAnteriores = "";
 
 const normalizeSearchText = (value) =>
   String(value ?? "")
@@ -138,8 +141,15 @@ function subtitulo(r) {
 
 export function renderList(recursos, { onEdit, onArchive, onDelete }) {
   const tbody = $("list-body");
+  const resultados = recursos.map(r => r.id).join("\n");
+  if (resultados !== resultadosAnteriores) pagina = 1;
+  resultadosAnteriores = resultados;
+  const paginas = Math.max(1, Math.ceil(recursos.length / PAGE_SIZE));
+  pagina = Math.min(pagina, paginas);
+  const inicio = (pagina - 1) * PAGE_SIZE;
+  const visibles = recursos.slice(inicio, inicio + PAGE_SIZE);
   $("list-count").textContent = `${recursos.length} recurso${recursos.length === 1 ? "" : "s"}`;
-  tbody.innerHTML = recursos
+  tbody.innerHTML = visibles
     .map(
       (r) => `
     <tr data-id="${esc(r.id)}" class="${r.estado === "archivado" ? "row-archived" : ""}">
@@ -162,14 +172,18 @@ export function renderList(recursos, { onEdit, onArchive, onDelete }) {
     )
     .join("");
 
-  // Seleccionar/deseleccionar todos los recursos filtrados actualmente visibles.
+  // Seleccionar todos sigue abarcando TODOS los resultados filtrados, no solo
+  // la página dibujada. La paginación no recorta la búsqueda ni las acciones.
   const checkAll = document.getElementById("check-all");
   const visibleIds = recursos.map((r) => r.id);
   checkAll.checked = visibleIds.length > 0 && visibleIds.every((id) => selection.has(id));
+  checkAll.indeterminate = !checkAll.checked && visibleIds.some(id => selection.has(id));
+  checkAll.title = `Seleccionar los ${recursos.length} resultados filtrados`;
   checkAll.onchange = () => {
     if (checkAll.checked) visibleIds.forEach((id) => selection.add(id));
     else visibleIds.forEach((id) => selection.delete(id));
     tbody.querySelectorAll(".row-check").forEach((c) => (c.checked = checkAll.checked));
+    checkAll.indeterminate = false;
     updateBulkBar();
   };
 
@@ -180,9 +194,23 @@ export function renderList(recursos, { onEdit, onArchive, onDelete }) {
     tr.querySelector(".act-delete")?.addEventListener("click", () => onDelete(id));
     tr.querySelector(".row-check").addEventListener("change", (e) => {
       e.target.checked ? selection.add(id) : selection.delete(id);
+      checkAll.checked = visibleIds.length > 0 && visibleIds.every(id => selection.has(id));
+      checkAll.indeterminate = !checkAll.checked && visibleIds.some(id => selection.has(id));
       updateBulkBar();
     });
   });
+  $("list-page-status").textContent = recursos.length
+    ? `${inicio + 1}–${inicio + visibles.length} de ${recursos.length} · Página ${pagina} de ${paginas}`
+    : "Sin resultados";
+  $("list-prev").disabled = pagina <= 1;
+  $("list-next").disabled = pagina >= paginas;
+  const cambiarPagina = avance => {
+    pagina += avance;
+    renderList(recursos, { onEdit, onArchive, onDelete });
+    tbody.closest(".table-wrap")?.scrollIntoView({ block: "start" });
+  };
+  $("list-prev").onclick = () => cambiarPagina(-1);
+  $("list-next").onclick = () => cambiarPagina(1);
   updateBulkBar();
 }
 
@@ -194,6 +222,7 @@ export function updateBulkBar() {
 
 export function clearSelection() {
   selection.clear();
+  if ($("check-all")) { $("check-all").checked = false; $("check-all").indeterminate = false; }
   document.querySelectorAll(".row-check").forEach((c) => (c.checked = false));
   updateBulkBar();
 }

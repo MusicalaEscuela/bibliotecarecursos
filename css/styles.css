@@ -187,7 +187,11 @@ body {
   padding: 20px;
 }
 .modal-backdrop.open { display: flex; }
+body:has(.modal-backdrop.open) { overflow: hidden; }
+.list-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; padding: 16px 0; }
+.list-pagination span { margin-right: auto; color: var(--muted); font-size: 14px; }
 .modal {
+  contain: layout paint;
   background: var(--surface);
   border-radius: var(--radius);
   padding: 24px;
