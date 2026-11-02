@@ -164,3 +164,14 @@ definitiva y lo que se aprueba es el enlace.
 - Abrir un archivo por su URL (`get`) es público, porque el HUB de estudiantes abre los enlaces sin autenticarse. **Listar** el bucket (`list`) es solo de admins: si no, cualquiera podía enumerar y descargar todo el material de una. Cerrar el listado no afecta ningún enlace ya publicado.
 - La lectura de `recursos` sigue abierta **a propósito**: el HUB de estudiantes lee este proyecto sin autenticarse (usa `getFirestore` sin `getAuth`, contra un proyecto distinto al de su login). Cerrarla exige tocar antes el repo del HUB; ver el comentario en `firestore.rules`.
 - Al cambiar las reglas hay que **volver a publicarlas** (ver «Publicar las reglas»). Mientras no se publiquen, el repo puede decir una cosa y Firebase estar aplicando otra.
+
+
+## Organización y calidad del catálogo
+
+El botón **Organizar catálogo** prepara una propuesta a partir de los registros actuales y el export original de Classroom. Descarga un respaldo con el plan antes de habilitar la aplicación. Cada escritura usa la fecha de actualización del documento como precondición; si otra persona lo cambia, el proceso se detiene. El archivo de resultado conserva los comprobantes de los lotes confirmados. No se elimina ningún documento.
+
+`por-evaluar` representa dificultad desconocida; es distinto del nivel cero inicial. Los niveles vacíos o inválidos del Sheet quedan por evaluar. Los niveles numéricos de 0 a 5 y las estrellas se conservan. Los objetivos y formatos se derivan de metadatos explícitos; `catalogacion.contenidoRevisado` permanece falso hasta una revisión del adjunto. La descripción generada resume la ficha, sin afirmar una evaluación pedagógica.
+
+`js/organizacion.js` contiene las reglas y la recuperación de enlaces. Los títulos que contienen `|` se conservan completos al editar o sugerir recursos. Las categorías se completan por tema y título; cuando no hay evidencia se usa `material-apoyo`. Los posibles duplicados requieren comparar artista, arreglo y enlaces antes de fusionar.
+
+Verificación: `node tests/organizacion.test.mjs`.

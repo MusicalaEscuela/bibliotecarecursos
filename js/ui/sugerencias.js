@@ -1,3 +1,4 @@
+import { parseLineaEnlace } from "../organizacion.js";
 // Sugerencias de recursos: formulario del docente y panel de revisión del admin.
 import { especialidadesDe } from "../taxonomia.js";
 import { uidActual } from "../auth.js";
@@ -21,10 +22,7 @@ const parseEnlaces = (texto) =>
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => {
-      const [titulo, url] = line.split("|").map((s) => s.trim());
-      return url ? { titulo, url } : { titulo: "", url: titulo };
-    });
+    .map(parseLineaEnlace);
 
 const fecha = (ts) =>
   ts?.toDate ? ts.toDate().toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : "";
@@ -40,7 +38,7 @@ export function initSugerenciaForm(tax, onSubmit, onValidar) {
   // La categoría puede quedar en blanco: si el docente no la sabe, la define el admin.
   fillSelect($("s-categoria"), ["", ...taxonomia.categorias], "");
   $("s-categoria").options[0].textContent = "(que la defina el equipo)";
-  fillSelect($("s-nivel"), taxonomia.niveles, "todos");
+  fillSelect($("s-nivel"), taxonomia.niveles, "por-evaluar");
 
   $("s-disciplina").addEventListener("change", () => {
     fillSelect($("s-especialidad"), especialidadesDe(taxonomia, $("s-disciplina").value));

@@ -51,21 +51,22 @@ export const esUrlValida = (u) => {
 
 // --- Nivel (0–5) ---
 
-export const nivelLegible = (n) => (n > 0 ? `Nivel ${n}` : "Para empezar");
-export const estrellas = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+export const nivelLegible = (n) => n == null ? "Dificultad por evaluar" : (n > 0 ? `Nivel ${n}` : "Para empezar");
+export const estrellas = (n) => Number.isInteger(n) && n >= 0 && n <= 5 ? "★".repeat(n) + "☆".repeat(5 - n) : "Por evaluar";
 
 // Equivalencia con el nivel de la taxonomía general, para que el HUB y los
 // filtros de siempre también ubiquen la canción.
 export const nivelTaxonomia = (n) =>
-  n <= 0 ? "inicial" : n <= 2 ? "basico" : n === 3 ? "intermedio" : "avanzado";
+  n == null ? "por-evaluar" : n <= 0 ? "inicial" : n <= 2 ? "basico" : n === 3 ? "intermedio" : "avanzado";
 
 // "★★☆☆☆" → 2. Vacío → 0. Devuelve también si el texto era raro.
 export function parseNivel(texto) {
   const t = String(texto ?? "").trim();
-  if (!t) return { nivel: 0, raro: false };
+  if (!t) return { nivel: null, raro: false };
+  if (/^[0-5](?:\.0)?$/.test(t)) return { nivel: Number(t), raro: false };
   const llenas = (t.match(/★/g) || []).length;
   const raro = !/^[★☆]{5}$/.test(t);
-  return { nivel: Math.min(5, llenas), raro };
+  return { nivel: raro ? null : Math.min(5, llenas), raro };
 }
 
 // --- Contenido ---
@@ -135,7 +136,7 @@ export function camposDeCancion({ titulo, cancion, enlaces, instrumento = "piano
     "repertorio",
     "canción",
     c.genero ? c.genero.toLowerCase() : "",
-    `nivel-${c.nivel}`,
+    c.nivel == null ? "nivel-por-evaluar" : `nivel-${c.nivel}`,
     info.contenidoTipo === "notas" ? `notas-${info.numeroNotas}` : "",
     info.contenidoTipo === "acordes" ? "acordes" : "",
   ].filter(Boolean);
@@ -180,7 +181,7 @@ export function filaACancion(fila) {
   if (!titulo) return { error: `Fila ${fila._fila}: sin nombre de canción` };
 
   const { nivel, raro } = parseNivel(fila["Nivel"]);
-  if (!fila["Nivel"]) avisos.push("sin nivel (se usa 0)");
+  if (!fila["Nivel"]) avisos.push("sin nivel (queda por evaluar)");
   else if (raro) avisos.push(`nivel raro "${fila["Nivel"]}" (se leyó ${nivel})`);
 
   const generoOriginal = fila["Género"];

@@ -1,3 +1,4 @@
+import { abrirOrganizador } from "./ui/organizador.js";
 // Orquestador del Manager de la Biblioteca.
 import { login, logout, watchAuth } from "./auth.js";
 import {
@@ -238,7 +239,7 @@ function initBulkBar() {
 
 function initToolbar() {
   [
-    "filter-nivel", "filter-revision", "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
+    "filter-objetivo", "filter-formato", "filter-nivel", "filter-revision", "filter-search", "filter-tipo", "filter-disciplina", "filter-especialidad", "filter-categoria",
     "filter-estado", "filter-nivel-cancion", "filter-genero", "filter-contenido", "filter-guia",
   ].forEach((id) => $(id).addEventListener("input", () => {
     toggleSongFilters();
@@ -683,6 +684,7 @@ async function normalizarRecursos() {
 initTaxModal();
 initEditor();
 initToolbar();
+$("btn-organizar").addEventListener("click", () => abrirOrganizador(currentUser, loadData));
 initBulkBar();
 initSugerenciasModal();
 initSyncModal();

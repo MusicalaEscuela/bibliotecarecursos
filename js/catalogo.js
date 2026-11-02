@@ -22,7 +22,7 @@ export function diagnosticar(r) {
   })) incidencias.push("nivel-sin-evidencia-en-origen");
   if (!r.descripcion?.trim()) incidencias.push("sin-descripcion");
   if (!r.categoria?.trim()) incidencias.push("sin-categoria");
-  if (!r.nivel || r.nivel === "todos") incidencias.push("revisar-nivel");
+  if (!r.nivel || r.nivel === "todos" || r.nivel === "por-evaluar") incidencias.push("revisar-nivel");
   const enlaces = (r.enlaces || []).filter(e => e.url);
   if (!enlaces.length && !r.url) incidencias.push("sin-enlaces");
   if (enlaces.some(e => !/^https?:\/\//i.test(e.url))) incidencias.push("url-invalida");

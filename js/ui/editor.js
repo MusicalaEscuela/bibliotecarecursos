@@ -1,3 +1,4 @@
+import { parseLineaEnlace } from "../organizacion.js";
 // Modal de creación/edición de un recurso.
 import { especialidadesDe } from "../taxonomia.js";
 import { uidActual } from "../auth.js";
@@ -57,7 +58,7 @@ function fillCancion(recurso, generos) {
   $("f-artista").value = c.artista || "";
   $("f-genero").value = c.genero || "";
   $("f-generos").innerHTML = generos.map((g) => `<option value="${g}">`).join("");
-  $("f-nivel-cancion").value = String(Number(c.nivel) || 0);
+  $("f-nivel-cancion").value = c.nivel == null ? "" : String(c.nivel);
   $("f-tonalidad").value = c.tonalidad || "";
   $("f-contenido").value = c.contenido || "";
   const enlaces = recurso?.enlaces || [];
@@ -109,7 +110,7 @@ export function openEditor(recurso, tax, onSave, { generos = [] } = {}) {
   fillSelect($("f-disciplina"), taxonomia.disciplinas, recurso?.disciplina || "musica");
   refreshEspecialidades(recurso?.especialidad || recurso?.area || "general");
   fillSelect($("f-categoria"), taxonomia.categorias, recurso?.categoria || recurso?.tipo || "");
-  fillSelect($("f-nivel"), taxonomia.niveles, recurso?.nivel || "todos");
+  fillSelect($("f-nivel"), taxonomia.niveles, recurso?.nivel || "por-evaluar");
 
   // Público: checkboxes (por defecto, estudiantes).
   const publicoSel = recurso?.publico?.length ? recurso.publico : ["estudiantes"];
@@ -132,8 +133,9 @@ export function closeEditor() {
 
 // Completa y valida los campos de una canción. Devuelve un mensaje de error o null.
 function aplicarCancion(data) {
-  const nivel = Number($("f-nivel-cancion").value);
-  if (!Number.isInteger(nivel) || nivel < 0 || nivel > 5) return "El nivel debe estar entre 0 y 5.";
+  const valorNivel = $("f-nivel-cancion").value;
+  const nivel = valorNivel === "" ? null : Number(valorNivel);
+  if (nivel !== null && (!Number.isInteger(nivel) || nivel < 0 || nivel > 5)) return "El nivel debe estar entre 0 y 5.";
 
   const guias = [];
   for (const g of GUIAS) {
@@ -217,8 +219,7 @@ function collectForm() {
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
-        const [titulo, url] = line.split("|").map((s) => s.trim());
-        const enlace = url ? { titulo, url } : { titulo: "", url: titulo };
+        const enlace = parseLineaEnlace(line);
         // Si el enlace ya existía, conserva sus metadatos (storagePath…).
         const original = enlacesOriginales.find((o) => o.url === enlace.url);
         return original ? { ...original, ...enlace } : enlace;

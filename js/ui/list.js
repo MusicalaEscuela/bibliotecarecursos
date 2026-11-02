@@ -30,6 +30,8 @@ const searchableText = (r) =>
     r.especialidad,
     r.categoria,
     r.nivel,
+    ...(r.objetivos || []),
+    ...(r.formatos || []),
     r.area,
     r.tipo,
     r.estado,
@@ -62,6 +64,8 @@ export function getFilters() {
     disciplina: $("filter-disciplina").value,
     especialidad: $("filter-especialidad").value,
     categoria: $("filter-categoria").value,
+    objetivo: $("filter-objetivo").value,
+    formato: $("filter-formato").value,
     nivel: $("filter-nivel").value,
     revision: $("filter-revision").value,
     estado: $("filter-estado").value,
@@ -84,6 +88,8 @@ export function applyFilters(recursos, f) {
     if (f.disciplina && (r.disciplina || "") !== f.disciplina) return false;
     if (f.especialidad && especialidadDe(r) !== f.especialidad) return false;
     if (f.categoria && categoriaDe(r) !== f.categoria) return false;
+    if (f.objetivo && !(r.objetivos || []).includes(f.objetivo)) return false;
+    if (f.formato && !(r.formatos || []).includes(f.formato)) return false;
     if (f.nivel && r.nivel !== f.nivel) return false;
     if (f.revision && !diagnosticar(r).incidencias.includes(f.revision)) return false;
     if (f.estado && r.estado !== f.estado) return false;
@@ -107,6 +113,8 @@ export function fillFilterOptions(recursos) {
   fill("filter-disciplina", new Set(recursos.map((r) => r.disciplina).filter(Boolean)), "Todas las disciplinas");
   fill("filter-especialidad", new Set(recursos.map(especialidadDe).filter(Boolean)), "Todas las especialidades");
   fill("filter-categoria", new Set(recursos.map(categoriaDe).filter(Boolean)), "Todas las categorías");
+  fill("filter-objetivo", new Set(recursos.flatMap(r => r.objetivos || [])), "Objetivo: todos");
+  fill("filter-formato", new Set(recursos.flatMap(r => r.formatos || [])), "Formato: todos");
   fill("filter-nivel", new Set(recursos.map(r => r.nivel).filter(Boolean)), "Dificultad: todas");
   fill("filter-tipo", new Set(recursos.map((r) => r.tipo).filter(Boolean)), "Todos los tipos");
   fill("filter-genero", new Set(recursos.map((r) => r.cancion?.genero).filter(Boolean)), "Todos los géneros");
@@ -118,7 +126,7 @@ function subtitulo(r) {
     const c = r.cancion;
     const partes = [
       c.artista ? esc(c.artista) : "",
-      `<span class="stars" title="Nivel ${c.nivel}">${estrellas(Number(c.nivel) || 0)}</span>`,
+      `<span class="stars" title="${c.nivel == null ? "Dificultad por evaluar" : `Nivel ${c.nivel}`}">${estrellas(c.nivel)}</span>`,
       c.genero ? esc(c.genero) : "",
       c.tonalidad ? `en ${esc(c.tonalidad)}` : "",
       c.contenido ? esc(c.contenido) : "",

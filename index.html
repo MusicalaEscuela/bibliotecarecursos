@@ -111,6 +111,8 @@
         <select id="filter-disciplina"><option value="">Todas las disciplinas</option></select>
         <select id="filter-especialidad"><option value="">Todas las especialidades</option></select>
         <select id="filter-categoria"><option value="">Todas las categorías</option></select>
+        <select id="filter-objetivo"><option value="">Objetivo: todos</option></select>
+        <select id="filter-formato"><option value="">Formato: todos</option></select>
         <select id="filter-nivel"><option value="">Dificultad: todas</option></select>
         <select id="filter-revision"><option value="">Revisión: todos</option><option value="revisar-nivel">Nivel por revisar</option><option value="sin-categoria">Sin categoría</option><option value="sin-descripcion">Sin descripción</option><option value="sin-enlaces">Sin enlaces</option><option value="url-invalida">URL inválida</option><option value="nivel-sin-evidencia-en-origen">Nivel sin evidencia en origen</option><option value="titulo-invalido">Título inválido</option></select>
         <select id="filter-estado">
@@ -122,6 +124,7 @@
         <span id="list-count" class="list-count"></span>
         <div class="toolbar-spacer"></div>
         <button id="btn-sugerencias" class="btn btn-ghost">Sugerencias <span id="sug-count" class="badge badge-borrador hidden">0</span></button>
+        <button id="btn-organizar" class="btn btn-ghost">Organizar catálogo</button>
         <button id="btn-taxonomia" class="btn btn-ghost">Taxonomía</button>
         <button id="btn-import-toolbar" class="btn btn-ghost">Importar faltantes</button>
         <button id="btn-sync-repertorio" class="btn btn-ghost">Sincronizar repertorio</button>
@@ -133,7 +136,8 @@
       <section id="song-filters" class="toolbar hidden">
         <select id="filter-nivel-cancion">
           <option value="">Todos los niveles</option>
-          <option value="0">☆☆☆☆☆ Para empezar</option>
+          <option value="">Dificultad por evaluar</option>
+              <option value="0">☆☆☆☆☆ Para empezar</option>
           <option value="1">★☆☆☆☆ Nivel 1</option>
           <option value="2">★★☆☆☆ Nivel 2</option>
           <option value="3">★★★☆☆ Nivel 3</option>
@@ -211,6 +215,7 @@
         <div class="form-row">
           <label>Nivel
             <select id="f-nivel-cancion">
+              <option value="">Dificultad por evaluar</option>
               <option value="0">☆☆☆☆☆ Para empezar</option>
               <option value="1">★☆☆☆☆ Nivel 1</option>
               <option value="2">★★☆☆☆ Nivel 2</option>
