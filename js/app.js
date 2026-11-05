@@ -28,7 +28,7 @@ import { borrarArchivosDe } from "./storage.js";
 import { buscarDuplicados, mensajeDuplicados } from "./duplicados.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
-import { openEditor, initEditor } from "./ui/editor.js";
+import { openEditor, initEditor } from "./ui/editor.js?v=20261105.1-juegos";
 import {
   initSugerenciaForm,
   renderSugerencias,
@@ -39,7 +39,7 @@ import {
   withDefaults,
   especialidadesDe,
   derivarCampos,
-} from "./taxonomia.js";
+} from "./taxonomia.js?v=20261105.1-juegos";
 import {
   renderList,
   applyFilters,
@@ -49,7 +49,7 @@ import {
   clearSelection,
   setVista,
   getVista,
-} from "./ui/list.js";
+} from "./ui/list.js?v=20261105.1-juegos";
 
 const $ = (id) => document.getElementById(id);
 
