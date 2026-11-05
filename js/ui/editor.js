@@ -94,7 +94,7 @@ export function openEditor(recurso, tax, onSave, { generos = [] } = {}) {
   $("f-etiquetas").value = (recurso?.etiquetas || []).join(", ");
   $("f-estado").value = recurso?.estado || "publicado";
   enlacesOriginales = recurso?.enlaces || [];
-  $("f-tipo").value = cancion ? TIPO_CANCION : "";
+  $("f-tipo").value = cancion ? TIPO_CANCION : recurso?.tipo === "Juego" ? "Juego" : "";
   fillCancion(recurso, generos);
   refreshTipo();
   // En una canción, las guías van en sus propios campos, no en el textarea.
@@ -211,7 +211,7 @@ function collectForm() {
       .value.split(",")
       .map((t) => t.trim())
       .filter(Boolean),
-    tipo: $("f-tipo").value === TIPO_CANCION
+    tipo: $("f-tipo").value === "Juego" ? "Juego" : $("f-tipo").value === TIPO_CANCION
       ? TIPO_CANCION
       : (recursoOriginal?.tipo === TIPO_CANCION ? "" : recursoOriginal?.tipo || ""),
     enlaces: $("f-enlaces")

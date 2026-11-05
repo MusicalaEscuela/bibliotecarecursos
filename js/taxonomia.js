@@ -20,6 +20,7 @@ export const DEFAULT_TAXONOMIA = {
     "artes-plasticas",
     "institucional",
     "vacacionales",
+    "interdisciplinar",
   ],
   // Especialidades por disciplina. Siempre incluyen "general" (material que ven
   // todos dentro de la disciplina, sin importar su instrumento).
@@ -42,6 +43,7 @@ export const DEFAULT_TAXONOMIA = {
     "artes-plasticas": ["general", "dibujo", "pintura", "acuarela"],
     institucional: ["general"],
     vacacionales: ["general"],
+    interdisciplinar: ["general"],
   },
   categorias: [
     "tecnica",
@@ -57,6 +59,7 @@ export const DEFAULT_TAXONOMIA = {
     "playlist",
     "herramienta",
     "evaluacion",
+    "juegos",
   ],
   niveles: ["por-evaluar", "inicial", "basico", "intermedio", "avanzado", "todos"],
   publico: ["estudiantes", "docentes", "acudientes", "admin"],
@@ -72,7 +75,7 @@ export function withDefaults(tax) {
   return {
     disciplinas: t.disciplinas?.length ? t.disciplinas : DEFAULT_TAXONOMIA.disciplinas,
     especialidades: { ...DEFAULT_TAXONOMIA.especialidades, ...(t.especialidades || {}) },
-    categorias: t.categorias?.length ? t.categorias : DEFAULT_TAXONOMIA.categorias,
+    categorias: [...new Set([...(t.categorias?.length ? t.categorias : DEFAULT_TAXONOMIA.categorias), "juegos"])],
     niveles: [...new Set([...(t.niveles?.length ? t.niveles : DEFAULT_TAXONOMIA.niveles), "por-evaluar"])],
     publico: t.publico?.length ? t.publico : DEFAULT_TAXONOMIA.publico,
     generales: t.generales?.length ? t.generales : DEFAULT_TAXONOMIA.generales,

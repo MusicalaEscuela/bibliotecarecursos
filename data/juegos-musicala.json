@@ -1,0 +1,669 @@
+{
+  "version": "2026-11-05.1",
+  "sources": [
+    "https://musicalaescuela.github.io/musijuegosmusica/",
+    "https://musicalaescuela.github.io/musijuegosartes/"
+  ],
+  "games": [
+    {
+      "id": "atrapa-el-ritmo",
+      "title": "Atrapa el ritmo",
+      "url": "https://musicalaescuela.github.io/atrapaelritmo/",
+      "category": "Música",
+      "skill": "Ritmo",
+      "level": "Inicial",
+      "age": "6+",
+      "icon": "🥁",
+      "featured": true,
+      "description": "Escucha, observa y responde patrones rítmicos de forma rápida y divertida.",
+      "mission": "Entrena tu pulso y tu coordinación para sentir mejor el ritmo.",
+      "howToPlay": "Juega una ronda corta, escucha con atención y trata de responder cada patrón sin acelerarte.",
+      "challenge": "Después de jugar, intenta repetir un ritmo con palmas o con tu instrumento.",
+      "tags": [
+        "ritmo",
+        "pulso",
+        "coordinación",
+        "patrones"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "juego-de-lineas",
+      "title": "Lectura de líneas en el pentagrama",
+      "url": "https://alekcaballero20.github.io/juego-de-lineas/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Inicial",
+      "age": "5+",
+      "icon": "🎼",
+      "featured": true,
+      "description": "Practica las notas que viven en las líneas del pentagrama.",
+      "mission": "Reconoce las líneas del pentagrama y aprende a ubicar notas con más seguridad.",
+      "howToPlay": "Mira la nota, piensa en qué línea está y elige la respuesta correcta.",
+      "challenge": "Dibuja un pentagrama y ubica tres notas en líneas diferentes.",
+      "tags": [
+        "pentagrama",
+        "líneas",
+        "notas",
+        "niños"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "musinotas",
+      "title": "Musinotas: líneas y espacios",
+      "url": "https://musicalaescuela.github.io/juego_lineasyespacios/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Inicial",
+      "age": "6+",
+      "icon": "🎵",
+      "featured": true,
+      "description": "Lee notas en líneas y espacios del pentagrama mientras juegas.",
+      "mission": "Mejora tu lectura musical reconociendo dónde está cada nota.",
+      "howToPlay": "Observa si la nota está en una línea o en un espacio y responde con calma.",
+      "challenge": "Intenta jugar dos rondas y mejorar tu puntaje en la segunda.",
+      "tags": [
+        "líneas",
+        "espacios",
+        "pentagrama",
+        "lectura"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "musirecolector-de-notas",
+      "title": "Musirecolector de notas",
+      "url": "https://musicalaescuela.github.io/juegorecolectordenotas/",
+      "category": "Música",
+      "skill": "Exploración instrumental",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "🧺",
+      "featured": false,
+      "description": "Recolecta notas, responde rápido y entrena tu atención musical.",
+      "mission": "Relaciona nombres de notas con estímulos visuales mientras mejoras tu reacción.",
+      "howToPlay": "Concéntrate en la nota que aparece y muévete con precisión para atraparla.",
+      "challenge": "Juega una ronda sin afanarte. La velocidad ayuda, pero pensar también, sorpresa histórica.",
+      "tags": [
+        "notas",
+        "reacción",
+        "visual",
+        "reto"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "piano-digital",
+      "title": "Piano digital",
+      "url": "https://musicalaescuela.github.io/pianosdidacticos/",
+      "category": "Música",
+      "skill": "Exploración instrumental",
+      "level": "Inicial",
+      "age": "5+",
+      "icon": "🎹",
+      "featured": true,
+      "description": "Explora sonidos, notas y melodías en un piano interactivo.",
+      "mission": "Conoce el teclado y descubre cómo suenan las notas.",
+      "howToPlay": "Toca diferentes teclas, escucha sus sonidos y prueba crear pequeñas melodías.",
+      "challenge": "Busca dos notas que suenen bonito juntas y crea un mini motivo musical.",
+      "tags": [
+        "piano",
+        "teclado",
+        "sonido",
+        "exploración"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "note-quest",
+      "title": "Note Quest",
+      "url": "https://musicalaescuela.github.io/notequest/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Reto",
+      "age": "8+",
+      "icon": "🗺️",
+      "featured": true,
+      "description": "Una aventura para practicar lectura de notas con dinámica de misión.",
+      "mission": "Lee notas más rápido y toma decisiones musicales con seguridad.",
+      "howToPlay": "Avanza por el juego respondiendo correctamente las notas que aparecen.",
+      "challenge": "Juega una ronda y anota cuál nota te costó más reconocer.",
+      "tags": [
+        "aventura",
+        "notas",
+        "lectura",
+        "reto"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "nota-a-nota",
+      "title": "Nota a nota",
+      "url": "https://musicalaescuela.github.io/notaanota/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "🔤",
+      "featured": false,
+      "description": "Practica el reconocimiento de notas paso a paso.",
+      "mission": "Gana confianza leyendo una nota a la vez.",
+      "howToPlay": "Observa cada nota, responde y fíjate en las que necesitas repasar.",
+      "challenge": "Haz una ronda lenta y otra rápida. No vale culpar al mouse, aunque sea tentador.",
+      "tags": [
+        "notas",
+        "lectura",
+        "repaso",
+        "progresivo"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "nota-perfecta",
+      "title": "Nota perfecta",
+      "url": "https://musicalaescuela.github.io/notaperfecta/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Reto",
+      "age": "8+",
+      "icon": "🏆",
+      "featured": false,
+      "description": "Un reto para identificar notas con precisión y velocidad.",
+      "mission": "Aumenta tu seguridad al leer notas musicales.",
+      "howToPlay": "Responde con atención, busca precisión y luego intenta mejorar tu tiempo.",
+      "challenge": "Repite una ronda y trata de cometer menos errores que la vez anterior.",
+      "tags": [
+        "precisión",
+        "notas",
+        "reto",
+        "lectura"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "solitario-musical",
+      "title": "Solitario musical",
+      "url": "https://musicalaescuela.github.io/solitariomusical/",
+      "category": "Música",
+      "skill": "Memoria",
+      "level": "Reto",
+      "age": "9+",
+      "icon": "🃏",
+      "featured": false,
+      "description": "Juego tipo solitario con memoria, estrategia y elementos musicales.",
+      "mission": "Relaciona conceptos musicales usando lógica y memoria.",
+      "howToPlay": "Observa las cartas, piensa tus movimientos y busca las mejores asociaciones.",
+      "challenge": "Antes de mover una carta, explica en tu mente por qué esa jugada tiene sentido.",
+      "tags": [
+        "memoria",
+        "cartas",
+        "estrategia",
+        "asociación"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "memoria-musical-visual",
+      "title": "Memoria musical visual",
+      "url": "https://musicalaescuela.github.io/memoriamusicalvisual/",
+      "category": "Música",
+      "skill": "Memoria",
+      "level": "Inicial",
+      "age": "5+",
+      "icon": "👀",
+      "featured": true,
+      "description": "Encuentra parejas y entrena tu memoria visual con símbolos musicales.",
+      "mission": "Mejora tu atención y recuerda símbolos musicales con más facilidad.",
+      "howToPlay": "Destapa cartas, memoriza su lugar y encuentra las parejas correctas.",
+      "challenge": "Juega una ronda intentando usar menos movimientos.",
+      "tags": [
+        "memoria",
+        "visual",
+        "símbolos",
+        "atención"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "entrenador-lectura-musical",
+      "title": "Entrenador de Lectura Musical",
+      "url": "https://musicalaescuela.github.io/entrenadordelecturamusical/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "🦉",
+      "featured": true,
+      "description": "Entrena lectura musical con ejercicios breves y repetibles.",
+      "mission": "Construye hábito de lectura musical con práctica constante.",
+      "howToPlay": "Haz ejercicios cortos, revisa tus errores y vuelve a intentarlo.",
+      "challenge": "Practica cinco minutos hoy y vuelve mañana. Sí, la constancia, ese invento sospechoso.",
+      "tags": [
+        "lectura",
+        "rutina",
+        "notas",
+        "práctica"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "cazanotas",
+      "title": "Cazanotas",
+      "url": "https://musicalaescuela.github.io/cazanotas/",
+      "category": "Música",
+      "skill": "Lectura musical",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "🎯",
+      "featured": false,
+      "description": "Encuentra notas musicales y mejora tu velocidad de lectura.",
+      "mission": "Reconoce notas con más rapidez, atención y precisión.",
+      "howToPlay": "Busca la nota correcta, responde rápido y evita confundirte por correr demasiado.",
+      "challenge": "Haz dos rondas: una para conocer el juego y otra para superar tu puntaje.",
+      "tags": [
+        "notas",
+        "búsqueda",
+        "velocidad",
+        "precisión"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "construye-el-compas",
+      "title": "Construye el compás",
+      "url": "https://musicalaescuela.github.io/construyeelcompas/",
+      "category": "Música",
+      "skill": "Ritmo",
+      "level": "Intermedio",
+      "age": "8+",
+      "icon": "🧱",
+      "featured": false,
+      "description": "Construye compases y entiende cómo se organizan los ritmos.",
+      "mission": "Comprende figuras rítmicas, duración y organización dentro del compás.",
+      "howToPlay": "Elige las figuras correctas y arma compases que tengan sentido musical.",
+      "challenge": "Después de construir un compás, interprétalo con palmas.",
+      "tags": [
+        "compás",
+        "figuras",
+        "métrica",
+        "ritmo"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "memoria-musical-auditiva",
+      "title": "Memoria musical auditiva",
+      "url": "https://musicalaescuela.github.io/memoriamusicalauditiva/",
+      "category": "Música",
+      "skill": "Memoria",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "👂",
+      "featured": true,
+      "description": "Escucha, recuerda y reconoce sonidos o patrones musicales.",
+      "mission": "Fortalece tu oído musical y tu memoria auditiva.",
+      "howToPlay": "Escucha con atención cada sonido o patrón y trata de recordarlo antes de responder.",
+      "challenge": "Cierra los ojos en una ronda y concéntrate solo en lo que escuchas.",
+      "tags": [
+        "memoria",
+        "auditiva",
+        "escucha",
+        "patrones"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "ritmo-a-la-carta",
+      "title": "Ritmo a la carta",
+      "url": "https://musicalaescuela.github.io/ritmoalacarta/",
+      "category": "Música",
+      "skill": "Ritmo",
+      "level": "Intermedio",
+      "age": "8+",
+      "icon": "🍽️",
+      "featured": false,
+      "description": "Combina ritmos como ingredientes y crea patrones musicales.",
+      "mission": "Explora combinaciones rítmicas y mejora tu creatividad musical.",
+      "howToPlay": "Selecciona ritmos, combínalos y escucha cómo se transforma el patrón.",
+      "challenge": "Crea un ritmo y luego tócalo con palmas, mesa o percusión corporal.",
+      "tags": [
+        "ritmo",
+        "creación",
+        "patrones",
+        "combinación"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "juego-cartas-musica",
+      "title": "Juego de cartas Música",
+      "url": "https://musicalaescuela.github.io/juegodecartasmusicalatcg/",
+      "category": "Música",
+      "skill": "Cartas",
+      "level": "Reto",
+      "age": "9+",
+      "icon": "🃏",
+      "featured": false,
+      "description": "Juego de cartas musical para usar estrategia, memoria y conceptos musicales.",
+      "mission": "Relaciona conceptos musicales mientras tomas decisiones de juego.",
+      "howToPlay": "Lee cada carta, piensa tu jugada y usa tus recursos con estrategia.",
+      "challenge": "Explica después de jugar cuál fue tu mejor movimiento y por qué.",
+      "tags": [
+        "cartas",
+        "estrategia",
+        "conceptos",
+        "tcg"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosmusica/",
+      "disciplinas": [
+        "musica"
+      ]
+    },
+    {
+      "id": "mezcla-de-colores-magicos",
+      "title": "Mezcla de colores mágicos",
+      "url": "https://musicalaescuela.github.io/mezcladecoloresmagicos/",
+      "category": "Artes Plásticas",
+      "skill": "Color",
+      "level": "Inicial",
+      "age": "5+",
+      "icon": "🌈",
+      "featured": true,
+      "order": 1,
+      "description": "Explora mezclas de color y descubre nuevas combinaciones como si fueras alquimista, pero sin explotar el salón.",
+      "mission": "Reconocer colores base, probar mezclas y entender cómo cambia una imagen cuando cambia su paleta.",
+      "howToPlay": "Juega una ronda observando qué colores aparecen al combinar. No adivines todo a lo loco: mira, prueba y compara.",
+      "classMode": "Después de jugar, crea una mini paleta de 4 colores y ponle nombre artístico. Sí, ponerle nombre ayuda. Misterios del cerebro.",
+      "challenge": "Elige dos colores que te gusten, mézclalos mentalmente y luego comprueba si el resultado era el que imaginabas.",
+      "tags": [
+        "color",
+        "mezcla",
+        "paleta",
+        "creatividad"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosartes/",
+      "disciplinas": [
+        "artes-plasticas"
+      ]
+    },
+    {
+      "id": "linea-perfecta",
+      "title": "Línea perfecta",
+      "url": "https://musicalaescuela.github.io/lineaperfecta/",
+      "category": "Artes Plásticas",
+      "skill": "Línea y trazo",
+      "level": "Inicial",
+      "age": "6+",
+      "icon": "📏",
+      "featured": true,
+      "order": 2,
+      "description": "Entrena precisión, dirección y control del trazo con retos de línea clara y concentración.",
+      "mission": "Mejorar el control de la mano, la atención visual y la intención antes de dibujar.",
+      "howToPlay": "Empieza despacio. Sigue la línea con calma, evita correr y observa dónde pierdes precisión.",
+      "classMode": "Haz tres líneas en papel: una rápida, una lenta y una con respiración tranquila. Compara cuál quedó mejor.",
+      "challenge": "Intenta una ronda usando tu mano dominante y luego dibuja una línea sencilla con la otra mano. Humildad instantánea.",
+      "tags": [
+        "línea",
+        "trazo",
+        "precisión",
+        "control"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosartes/",
+      "disciplinas": [
+        "artes-plasticas"
+      ]
+    },
+    {
+      "id": "el-ultimo-trazo",
+      "title": "El último trazo",
+      "url": "https://musicalaescuela.github.io/elultimotrazo/",
+      "category": "Artes Plásticas",
+      "skill": "Dibujo",
+      "level": "Intermedio",
+      "age": "7+",
+      "icon": "✏️",
+      "featured": true,
+      "order": 3,
+      "description": "Un reto de dibujo y decisión visual para completar trazos, observar formas y cerrar ideas con intención.",
+      "mission": "Practicar observación, continuidad de línea, composición y toma de decisiones al dibujar.",
+      "howToPlay": "Mira la forma antes de actuar. Piensa cuál trazo completa mejor la imagen y evita jugar en modo piloto automático.",
+      "classMode": "Luego de jugar, dibuja una figura incompleta y pídele a alguien que la termine con un solo trazo.",
+      "challenge": "Completa una ronda y después haz un dibujo de 2 minutos usando únicamente cinco trazos.",
+      "tags": [
+        "dibujo",
+        "observación",
+        "composición",
+        "decisión"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosartes/",
+      "disciplinas": [
+        "artes-plasticas"
+      ]
+    },
+    {
+      "id": "escultor-de-luz",
+      "title": "Escultor de luz",
+      "url": "https://musicalaescuela.github.io/escultordeluz/",
+      "category": "Artes Plásticas",
+      "skill": "Luz y volumen",
+      "level": "Intermedio",
+      "age": "8+",
+      "icon": "💡",
+      "featured": false,
+      "order": 4,
+      "description": "Observa luz, sombra, volumen y contraste para entender cómo una forma deja de verse plana.",
+      "mission": "Reconocer fuentes de luz, zonas de sombra, volumen y contraste en una composición visual.",
+      "howToPlay": "Fíjate de dónde viene la luz y cómo afecta cada forma. La sombra no es mugre, es información visual. Tremendo avance para la humanidad.",
+      "classMode": "Toma un objeto pequeño, ilumínalo con una lámpara y dibuja solo sus sombras principales.",
+      "challenge": "Después de jugar, dibuja una esfera con tres zonas: luz, media sombra y sombra fuerte.",
+      "tags": [
+        "luz",
+        "sombra",
+        "volumen",
+        "contraste"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosartes/",
+      "disciplinas": [
+        "artes-plasticas"
+      ]
+    },
+    {
+      "id": "juego-de-cartas-artes-plasticas",
+      "title": "Juego de cartas Artes plásticas",
+      "url": "https://musicalaescuela.github.io/juegodecartasartesplasticas/",
+      "category": "Artes Plásticas",
+      "skill": "Cartas",
+      "level": "Reto",
+      "age": "8+",
+      "icon": "🃏",
+      "featured": false,
+      "order": 5,
+      "description": "Un juego de cartas para repasar conceptos artísticos, tomar decisiones y jugar con estrategia creativa.",
+      "mission": "Relacionar conceptos de artes plásticas mientras usas memoria, estrategia y lectura visual.",
+      "howToPlay": "Lee cada carta, piensa tu jugada y conecta el efecto con una idea artística. Lanzar cartas al azar también es una estrategia, pero mala.",
+      "classMode": "Al terminar, elige tu carta favorita y explica qué concepto artístico representa.",
+      "challenge": "Juega una partida corta y escribe una regla nueva que podría hacer el juego más interesante.",
+      "tags": [
+        "cartas",
+        "estrategia",
+        "conceptos",
+        "memoria"
+      ],
+      "source": "https://musicalaescuela.github.io/musijuegosartes/",
+      "disciplinas": [
+        "artes-plasticas"
+      ]
+    },
+    {
+      "id": "bubbledance",
+      "title": "Bubble Dance",
+      "url": "https://musicalaescuela.github.io/bubbledance/",
+      "disciplinas": [
+        "danza"
+      ],
+      "skill": "Coordinación corporal",
+      "description": "Juego de coordinación corporal con cámara: lleva las manos a las zonas indicadas siguiendo las burbujas.",
+      "howToPlay": "Activa la cámara cuando vayas a jugar y sigue el tutorial de calibración.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "coordinación corporal"
+      ],
+      "source": "https://musicalaescuela.github.io/bubbledance/"
+    },
+    {
+      "id": "coreografia",
+      "title": "Ritmo y Secuencia",
+      "url": "https://musicalaescuela.github.io/coreografia/",
+      "disciplinas": [
+        "danza"
+      ],
+      "skill": "Memoria y coreografía",
+      "description": "Observa y recuerda secuencias de movimientos para practicar memoria corporal y coordinación.",
+      "howToPlay": "Observa la secuencia y repite los movimientos en el orden indicado.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "memoria y coreografía"
+      ],
+      "source": "https://musicalaescuela.github.io/coreografia/"
+    },
+    {
+      "id": "sigueelritmo",
+      "title": "Sigue el ritmo",
+      "url": "https://musicalaescuela.github.io/sigueelritmo/",
+      "disciplinas": [
+        "danza"
+      ],
+      "skill": "Ritmo y lateralidad",
+      "description": "Sigue las direcciones del tapete al compás para entrenar coordinación, lateralidad y reacción.",
+      "howToPlay": "Sigue las indicaciones del tapete y responde al ritmo.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "ritmo y lateralidad"
+      ],
+      "source": "https://musicalaescuela.github.io/sigueelritmo/"
+    },
+    {
+      "id": "emocionesdelactor",
+      "title": "Emociones del actor",
+      "url": "https://musicalaescuela.github.io/emocionesdelactor/",
+      "disciplinas": [
+        "teatro"
+      ],
+      "skill": "Expresión e interpretación",
+      "description": "Minijuego teatral para explorar emociones, expresión, interpretación y juego escénico.",
+      "howToPlay": "Explora las propuestas del juego y representa las emociones con tu voz y tu cuerpo.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "expresión e interpretación"
+      ],
+      "source": "https://musicalaescuela.github.io/emocionesdelactor/"
+    },
+    {
+      "id": "construyetuescenario",
+      "title": "Construye tu escenario",
+      "url": "https://musicalaescuela.github.io/construyetuescenario/",
+      "disciplinas": [
+        "musica",
+        "danza",
+        "teatro",
+        "artes-plasticas"
+      ],
+      "skill": "Creación escénica",
+      "description": "Construye un escenario artístico eligiendo fondo, personajes, objetos, luces y elementos decorativos.",
+      "howToPlay": "Escoge los elementos y crea una escena para tu presentación.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "creación escénica"
+      ],
+      "source": "https://musicalaescuela.github.io/construyetuescenario/"
+    },
+    {
+      "id": "impostormusicala",
+      "title": "El Impostor Musicala",
+      "url": "https://musicalaescuela.github.io/impostormusicala/",
+      "disciplinas": [
+        "musica",
+        "danza",
+        "teatro",
+        "artes-plasticas"
+      ],
+      "skill": "Conceptos artísticos y asociación",
+      "description": "Juego de roles y deducción con categorías de Música, Danza, Artes plásticas y Teatro.",
+      "howToPlay": "Elige las categorías artísticas y sigue las instrucciones para descubrir al impostor.",
+      "level": "",
+      "tags": [
+        "juegos",
+        "conceptos artísticos y asociación"
+      ],
+      "source": "https://musicalaescuela.github.io/impostormusicala/"
+    },
+    {
+      "id": "escalarium",
+      "title": "Escalarium Pro · La Forja de Escalas",
+      "url": "https://musicalaescuela.github.io/escalarium/",
+      "disciplinas": [
+        "musica"
+      ],
+      "skill": "Escalas y armonía",
+      "description": "Juego avanzado de construcción, auditoría y análisis de escalas musicales.",
+      "howToPlay": "Avanza por las zonas y resuelve retos de construcción de escalas, fórmulas y contexto armónico.",
+      "level": "Avanzado",
+      "tags": [
+        "juegos",
+        "escalas y armonía"
+      ],
+      "source": "https://musicalaescuela.github.io/escalarium/"
+    }
+  ]
+}

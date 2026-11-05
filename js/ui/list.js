@@ -78,6 +78,7 @@ export function getFilters() {
 export function applyFilters(recursos, f) {
   return recursos.filter((r) => {
     if (f.vista === "repertorio" && !esCancion(r)) return false;
+    if (f.vista === "juegos" && r.tipo !== "Juego") return false;
     if (f.tipo && (r.tipo || "") !== f.tipo) return false;
     // Filtros de canción: solo aplican a canciones (el resto queda fuera).
     const c = r.cancion;
@@ -88,7 +89,7 @@ export function applyFilters(recursos, f) {
     if (f.guia === "ninguna" && (!c || (r.enlaces || []).length)) return false;
     if (f.guia && f.guia !== "ninguna" && (!c || !(r.enlaces || []).some((e) => e.tipo === f.guia)))
       return false;
-    if (f.disciplina && (r.disciplina || "") !== f.disciplina) return false;
+    if (f.disciplina && (r.disciplina || "") !== f.disciplina && !(r.disciplinas || []).includes(f.disciplina)) return false;
     if (f.especialidad && especialidadDe(r) !== f.especialidad) return false;
     if (f.categoria && categoriaDe(r) !== f.categoria) return false;
     if (f.objetivo && !(r.objetivos || []).includes(f.objetivo)) return false;

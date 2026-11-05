@@ -1,3 +1,4 @@
+import { initJuegosSync } from "./ui/juegos-sync.js";
 import { abrirOrganizador } from "./ui/organizador.js";
 // Orquestador del Manager de la Biblioteca.
 import { login, logout, watchAuth } from "./auth.js";
@@ -714,3 +715,5 @@ watchAuth((user, esAdmin) => {
     loadVistaDocente();
   }
 });
+
+initJuegosSync({ getUser: () => currentUser, onComplete: loadData });

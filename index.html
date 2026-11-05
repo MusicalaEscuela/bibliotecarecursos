@@ -102,6 +102,7 @@
       <nav class="tabs" role="tablist">
         <button type="button" class="tab active" data-vista="todos" role="tab">Todos los recursos</button>
         <button type="button" class="tab" data-vista="repertorio" role="tab">🎵 Repertorio</button>
+        <button type="button" class="tab" data-vista="juegos" role="tab">🎮 Juegos</button>
       </nav>
 
       <!-- Barra de herramientas -->
@@ -127,6 +128,7 @@
         <button id="btn-organizar" class="btn btn-ghost">Organizar catálogo</button>
         <button id="btn-taxonomia" class="btn btn-ghost">Taxonomía</button>
         <button id="btn-import-toolbar" class="btn btn-ghost">Importar faltantes</button>
+        <button id="btn-sync-juegos" class="btn btn-ghost">Sincronizar juegos</button>
         <button id="btn-sync-repertorio" class="btn btn-ghost">Sincronizar repertorio</button>
         <button id="btn-export" class="btn btn-ghost">Exportar JSON</button>
         <button id="btn-new" class="btn btn-primary">+ Nuevo recurso</button>
@@ -207,6 +209,7 @@
           <select id="f-tipo">
             <option value="">Recurso general</option>
             <option value="Canción">Canción (repertorio)</option>
+            <option value="Juego">Juego</option>
           </select>
         </label>
       </div>
@@ -376,6 +379,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=20261105.1-juegos"></script>
 </body>
 </html>
