@@ -2,7 +2,7 @@ import { parseLineaEnlace } from "../organizacion.js";
 // Modal de creación/edición de un recurso.
 import { especialidadesDe } from "../taxonomia.js";
 import { uidActual } from "../auth.js";
-import { subirArchivos, mensajeErrorSubida } from "../storage.js";
+import { subirArchivos, mensajeErrorSubida } from "../storage.js?v=20261117-100mb";
 import { mostrarProgreso } from "./sugerencias.js";
 import { toast } from "./toast.js";
 import {

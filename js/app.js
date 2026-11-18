@@ -24,11 +24,11 @@ import {
   planificarSync,
   resumenPlan,
 } from "./repertorio.js";
-import { borrarArchivosDe } from "./storage.js";
+import { borrarArchivosDe } from "./storage.js?v=20261117-100mb";
 import { buscarDuplicados, mensajeDuplicados } from "./duplicados.js";
 import { importClassroomExport } from "./importer.js";
 import { toast } from "./ui/toast.js";
-import { openEditor, initEditor } from "./ui/editor.js?v=20261105.1-juegos";
+import { openEditor, initEditor } from "./ui/editor.js?v=20261117-100mb";
 import {
   initSugerenciaForm,
   renderSugerencias,

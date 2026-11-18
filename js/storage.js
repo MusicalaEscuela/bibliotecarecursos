@@ -19,8 +19,8 @@ import { app } from "./auth.js";
 export const storage = getStorage(app);
 
 // Debe coincidir con storage.rules (ahí está la validación que de verdad manda).
-export const MAX_BYTES = 25 * 1024 * 1024;
-export const MAX_MB = 25;
+export const MAX_BYTES = 100 * 1024 * 1024;
+export const MAX_MB = 100;
 
 // Mismos tipos que acepta storage.rules. Se comprueba también aquí para dar un
 // mensaje claro en vez de un "permiso denegado" del servidor.
